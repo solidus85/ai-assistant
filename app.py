@@ -123,11 +123,11 @@ def chat_stream():
             if session_id not in conversations:
                 conversations[session_id] = []
             
-            # Build conversation context
+            # Build conversation context using a more natural format
             context = ""
             for msg in conversations[session_id]:
-                context += f"User: {msg['user']}\nAssistant: {msg['assistant']}\n\n"
-            context += f"User: {user_input}\nAssistant:"
+                context += f"Human: {msg['user']}\n\n{msg['assistant']}\n\n"
+            context += f"Human: {user_input}\n\n"
             
             # Start timing
             start_time = time.time()

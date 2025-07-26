@@ -114,8 +114,20 @@
             sendButton.disabled = true;
             userInput.disabled = true;
 
-            // Clear output and prepare for streaming
-            outputArea.innerHTML = '<div class="response" id="streaming-response"></div>';
+            // Add user message to output
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'message user-message';
+            userMessageDiv.innerHTML = `<strong>You:</strong> ${message}`;
+            outputArea.appendChild(userMessageDiv);
+            
+            // Clear input
+            userInput.value = '';
+            
+            // Add response container
+            const responseContainer = document.createElement('div');
+            responseContainer.className = 'message assistant-message';
+            responseContainer.innerHTML = '<strong>Assistant:</strong> <span id="streaming-response"></span>';
+            outputArea.appendChild(responseContainer);
             const responseDiv = document.getElementById('streaming-response');
 
             try {
@@ -176,8 +188,11 @@
 
             // Re-enable input
             userInput.disabled = false;
-            userInput.value = '';
             userInput.focus();
+            sendButton.disabled = false;
+            
+            // Scroll to bottom
+            outputArea.scrollTop = outputArea.scrollHeight;
             
             // Update token count after message sent
             setTimeout(updateTokenCount, 100);
