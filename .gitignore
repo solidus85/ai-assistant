@@ -25,3 +25,4 @@ Thumbs.db
 ollama_models/
 *.log
 .env
+.claude
