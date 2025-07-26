@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mixtral Chat Interface</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mixtral Chat</h1>
+            <div class="header-info">
+                <div id="status" class="status">
+                    <span class="status-dot" id="status-dot"></span>
+                    <span id="status-text">Checking connection...</span>
+                </div>
+                <div id="token-counter" class="token-counter">
+                    <span id="token-count">0</span> / <span id="token-limit">2048</span> tokens
+                    <div class="token-bar">
+                        <div id="token-bar-fill" class="token-bar-fill"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <main>
+            <div class="chat-container">
+                <div id="output" class="output-area">
+                    <p class="welcome-message">Welcome! Ask Mixtral anything...</p>
+                </div>
+                
+                <div class="input-container">
+                    <textarea 
+                        id="user-input" 
+                        class="user-input" 
+                        placeholder="Type your question here..."
+                        rows="3"
+                    ></textarea>
+                    <div class="button-group">
+                        <button id="send-button" class="send-button" disabled>Send</button>
+                        <button id="clear-button" class="clear-button" title="Clear conversation history">Clear</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Elements
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const clearButton = document.getElementById('clear-button');
+        const outputArea = document.getElementById('output');
+        const statusDot = document.getElementById('status-dot');
+        const statusText = document.getElementById('status-text');
+        const tokenCount = document.getElementById('token-count');
+        const tokenLimit = document.getElementById('token-limit');
+        const tokenBarFill = document.getElementById('token-bar-fill');
+
+        // Session management
+        let sessionId = localStorage.getItem('chat-session-id');
+
+        // Check Ollama connection on load
+        checkHealth();
+        updateTokenCount();
+
+        // Event listeners
+        sendButton.addEventListener('click', sendMessage);
+        clearButton.addEventListener('click', clearConversation);
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        userInput.addEventListener('input', () => {
+            sendButton.disabled = userInput.value.trim() === '';
+            updateTokenCount();
+        });
+
+        async function checkHealth() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                if (data.ollama_connected && data.mixtral_available) {
+                    statusDot.className = 'status-dot connected';
+                    statusText.textContent = 'Connected to Mixtral';
+                } else if (data.ollama_connected) {
+                    statusDot.className = 'status-dot warning';
+                    statusText.textContent = 'Ollama connected, but Mixtral not found';
+                } else {
+                    statusDot.className = 'status-dot disconnected';
+                    statusText.textContent = 'Ollama not connected';
+                }
+                
+                // Update token limit if available
+                if (data.context_limit) {
+                    tokenLimit.textContent = data.context_limit;
+                }
+            } catch (error) {
+                statusDot.className = 'status-dot disconnected';
+                statusText.textContent = 'Connection error';
+            }
+        }
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            // Disable input while processing
+            sendButton.disabled = true;
+            userInput.disabled = true;
+
+            // Clear output and prepare for streaming
+            outputArea.innerHTML = '<div class="response" id="streaming-response"></div>';
+            const responseDiv = document.getElementById('streaming-response');
+
+            try {
+                const response = await fetch('/api/chat/stream', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        message: message,
+                        session_id: sessionId 
+                    })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop(); // Keep incomplete line in buffer
+
+                    for (const line of lines) {
+                        if (line.trim()) {
+                            try {
+                                const data = JSON.parse(line);
+                                
+                                if (data.error) {
+                                    displayError(data.error);
+                                    return;
+                                }
+                                
+                                if (data.token) {
+                                    responseDiv.textContent += data.token;
+                                }
+                                
+                                if (data.done && data.total_time) {
+                                    console.log(`Response time: ${data.total_time.toFixed(2)}s`);
+                                }
+                                
+                                if (data.session_id) {
+                                    sessionId = data.session_id;
+                                    localStorage.setItem('chat-session-id', sessionId);
+                                }
+                            } catch (e) {
+                                console.error('Failed to parse line:', line);
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                displayError('Failed to connect to server');
+            }
+
+            // Re-enable input
+            userInput.disabled = false;
+            userInput.value = '';
+            userInput.focus();
+            
+            // Update token count after message sent
+            setTimeout(updateTokenCount, 100);
+        }
+
+        function displayResponse(response) {
+            outputArea.innerHTML = `<div class="response">${escapeHtml(response)}</div>`;
+        }
+
+        function displayError(error) {
+            outputArea.innerHTML = `<div class="error">Error: ${escapeHtml(error)}</div>`;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function clearConversation() {
+            if (!sessionId) return;
+            
+            if (confirm('Clear conversation history?')) {
+                try {
+                    const response = await fetch('/api/conversation/clear', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ session_id: sessionId })
+                    });
+                    
+                    if (response.ok) {
+                        outputArea.innerHTML = '<p class="welcome-message">Conversation cleared. Start fresh!</p>';
+                        userInput.focus();
+                        updateTokenCount();
+                    }
+                } catch (error) {
+                    console.error('Failed to clear conversation:', error);
+                }
+            }
+        }
+
+        async function updateTokenCount() {
+            try {
+                const response = await fetch('/api/tokens/count', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        message: userInput.value
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    tokenCount.textContent = data.token_count;
+                    tokenLimit.textContent = data.context_limit;
+                    
+                    // Update progress bar
+                    const percentage = Math.min(data.percentage, 100);
+                    tokenBarFill.style.width = percentage + '%';
+                    
+                    // Change color based on usage
+                    if (percentage > 90) {
+                        tokenBarFill.style.backgroundColor = '#e74c3c';
+                    } else if (percentage > 70) {
+                        tokenBarFill.style.backgroundColor = '#f39c12';
+                    } else {
+                        tokenBarFill.style.backgroundColor = '#3498db';
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to update token count:', error);
+            }
+        }
+
+        // Periodic health check
+        setInterval(checkHealth, 30000);
+    </script>
+</body>
+</html>
