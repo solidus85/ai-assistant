@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 # Ollama configuration
 OLLAMA_BASE_URL = app_config.OLLAMA_BASE_URL
-MODEL_NAME = "mixtral-accurate"  # Q5_K_M high accuracy model
+MODEL_NAME = "phi3:mini"  # Using smaller, faster model for responsiveness
 
 # Store conversations in memory (use Redis or database for production)
 conversations = {}
