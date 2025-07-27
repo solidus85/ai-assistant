@@ -1,0 +1,21 @@
+/* Main CSS file that imports all modular CSS files */
+
+/* Base styles */
+@import url('./base/reset.css');
+@import url('./base/animations.css');
+
+/* Layout styles */
+@import url('./layout/container.css');
+@import url('./layout/header.css');
+
+/* Component styles */
+@import url('./components/status.css');
+@import url('./components/token-counter.css');
+@import url('./components/chat.css');
+@import url('./components/messages.css');
+@import url('./components/input.css');
+@import url('./components/buttons.css');
+@import url('./components/prompt-display.css');
+
+/* Utility styles */
+@import url('./utilities/responsive.css');

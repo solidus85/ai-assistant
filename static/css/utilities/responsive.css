@@ -1,0 +1,31 @@
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+    
+    header {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .header-info {
+        width: 100%;
+        align-items: stretch;
+    }
+    
+    .token-counter {
+        justify-content: space-between;
+    }
+    
+    .chat-container {
+        height: calc(100vh - 250px);
+    }
+    
+    .input-container {
+        flex-direction: column;
+    }
+    
+    .send-button {
+        width: 100%;
+    }
+}
