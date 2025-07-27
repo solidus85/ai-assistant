@@ -1,0 +1,89 @@
+.system-prompt-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.system-prompt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.system-prompt-header label {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+.system-prompt-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+    max-height: 200px;
+    line-height: 1.5;
+}
+
+.system-prompt-input:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+.save-button {
+    padding: 8px 20px;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s, opacity 0.3s;
+    min-width: 80px;
+}
+
+.save-button:hover:not(:disabled) {
+    background-color: #229954;
+}
+
+.save-button:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.save-button.unsaved {
+    background-color: #3498db;
+}
+
+.save-button.unsaved:hover {
+    background-color: #2980b9;
+}
+
+.save-button.success {
+    background-color: #27ae60;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .system-prompt-container {
+        padding: 15px;
+    }
+    
+    .system-prompt-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .save-button {
+        width: 100%;
+    }
+}

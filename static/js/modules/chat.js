@@ -15,7 +15,7 @@ export class ChatManager {
         this.outputArea.innerHTML = '';
         
         const userMessageDiv = createElement('div', 'message user-message', 
-            `<strong>You:</strong> ${message}`);
+            `<strong>You:</strong> <span class="user-content">${escapeHtml(message)}</span>`);
         this.outputArea.appendChild(userMessageDiv);
     }
 

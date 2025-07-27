@@ -16,6 +16,7 @@
 @import url('./components/input.css');
 @import url('./components/buttons.css');
 @import url('./components/prompt-display.css');
+@import url('./components/system-prompt.css');
 
 /* Utility styles */
 @import url('./utilities/responsive.css');

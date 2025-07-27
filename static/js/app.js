@@ -6,6 +6,7 @@ import { StatusManager } from './modules/status.js';
 import { TokenManager } from './modules/tokens.js';
 import { ChatManager } from './modules/chat.js';
 import { PromptManager } from './modules/prompt.js';
+import { SystemPromptManager } from './modules/system-prompt.js';
 
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
@@ -20,7 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
         statusText: document.getElementById('status-text'),
         tokenCount: document.getElementById('token-count'),
         tokenLimit: document.getElementById('token-limit'),
-        tokenBarFill: document.getElementById('token-bar-fill')
+        tokenBarFill: document.getElementById('token-bar-fill'),
+        systemPrompt: document.getElementById('system-prompt'),
+        savePromptButton: document.getElementById('save-prompt')
     };
 
     
@@ -47,9 +50,18 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.outputArea,
         elements.togglePromptButton
     );
+    
+    const systemPromptManager = new SystemPromptManager(
+        elements.systemPrompt,
+        elements.savePromptButton
+    );
 
     // Initialize prompt display state
     promptManager.setShowPrompts(getShowPrompts());
+    
+    // Load and setup system prompt
+    systemPromptManager.loadSystemPrompt();
+    systemPromptManager.setupEventListeners();
 
     // Check health and update tokens on load
     performHealthCheck();

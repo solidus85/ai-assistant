@@ -25,6 +25,19 @@
         </header>
         
         <main>
+            <div class="system-prompt-container">
+                <div class="system-prompt-header">
+                    <label for="system-prompt">System Prompt:</label>
+                    <button id="save-prompt" class="save-button">Save</button>
+                </div>
+                <textarea 
+                    id="system-prompt" 
+                    class="system-prompt-input" 
+                    placeholder="Enter system prompt..."
+                    rows="3"
+                ></textarea>
+            </div>
+            
             <div class="chat-container">
                 <div id="output" class="output-area">
                     <p class="welcome-message">Welcome! Ask me anything...</p>

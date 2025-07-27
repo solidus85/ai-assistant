@@ -22,3 +22,10 @@
     word-wrap: break-word;
     font-family: inherit;
 }
+
+.user-message .user-content {
+    display: inline-block;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: inherit;
+}
