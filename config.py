@@ -17,7 +17,7 @@ class Config:
     # Model performance settings (optimized for RTX 4080)
     MAX_TOKENS = int(os.environ.get('MAX_TOKENS', 1000))  # Can handle more with GPU
     TEMPERATURE = float(os.environ.get('TEMPERATURE', 0.7))
-    NUM_CTX = int(os.environ.get('NUM_CTX', 8192))  # 8K context window with GPU
+    NUM_CTX = int(os.environ.get('NUM_CTX', 32768))  # 32K context for Phi-3 (can go up to 128K)
     NUM_BATCH = int(os.environ.get('NUM_BATCH', 512))  # Optimal batch size for RTX 4080
     NUM_THREAD = int(os.environ.get('NUM_THREAD', 16))  # More threads with available CPU
     TOP_K = int(os.environ.get('TOP_K', 40))

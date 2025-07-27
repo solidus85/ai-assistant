@@ -12,6 +12,11 @@ def health_check():
     result = ollama.check_health()
     
     # Add context limit from config
-    result['context_limit'] = current_app.config.get('NUM_CTX', 8192)
+    context_limit = current_app.config.get('NUM_CTX', 32768)
+    result['context_limit'] = context_limit
+    result['context_limit_k'] = f"{context_limit // 1024}K"
+    
+    # Add current model info
+    result['current_model'] = current_app.config.get('MODEL_NAME', 'phi3:mini')
     
     return jsonify(result)
