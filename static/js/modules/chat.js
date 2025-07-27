@@ -8,6 +8,7 @@ export class ChatManager {
         this.outputArea = outputArea;
         this.userInput = userInput;
         this.sendButton = sendButton;
+        this.abortController = null;
     }
 
     addUserMessage(message) {
@@ -36,14 +37,18 @@ export class ChatManager {
     }
 
     async streamResponse(message, onPromptDisplay, responseTime) {
-        const response = await sendChatMessage(message);
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-        let totalChars = 0;
-        let tokenCount = 0;
+        // Create new abort controller for this request
+        this.abortController = new AbortController();
+        
+        try {
+            const response = await sendChatMessage(message, this.abortController.signal);
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            let totalChars = 0;
+            let tokenCount = 0;
 
-        while (true) {
+            while (true) {
             const { done, value } = await reader.read();
             if (done) break;
 
@@ -102,6 +107,20 @@ export class ChatManager {
                 }
             }
         }
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                // Add a message indicating the response was stopped
+                const streamingSpan = document.getElementById('streaming-response');
+                if (streamingSpan) {
+                    streamingSpan.innerHTML += '<span class="response-stopped"> [Response stopped by user]</span>';
+                }
+                console.log('Response generation stopped by user');
+            } else {
+                throw error;
+            }
+        } finally {
+            this.abortController = null;
+        }
     }
 
     displayError(error) {
@@ -126,5 +145,17 @@ export class ChatManager {
 
     scrollToBottom() {
         scrollToBottom(this.outputArea);
+    }
+    
+    stopResponse() {
+        if (this.abortController) {
+            this.abortController.abort();
+            return true;
+        }
+        return false;
+    }
+    
+    isStreaming() {
+        return this.abortController !== null;
     }
 }

@@ -67,3 +67,40 @@
     background-color: var(--bg-primary);
     border-color: var(--text-tertiary);
 }
+
+/* Stop button - appears during streaming */
+.stop-button {
+    padding: 10px 20px;
+    background-color: var(--accent-error);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stop-button:hover {
+    background-color: #e74c3c;
+    transform: translateY(-1px);
+}
+
+.stop-button:active {
+    transform: scale(0.98);
+}
+
+.stop-button::before {
+    content: '■';
+    font-size: 16px;
+}
+
+/* Response stopped message */
+.response-stopped {
+    color: var(--accent-warning);
+    font-style: italic;
+    font-size: 0.9em;
+    margin-left: 8px;
+}

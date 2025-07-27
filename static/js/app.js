@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const elements = {
         userInput: document.getElementById('user-input'),
         sendButton: document.getElementById('send-button'),
+        stopButton: document.getElementById('stop-button'),
         clearButton: document.getElementById('clear-button'),
         togglePromptButton: document.getElementById('toggle-prompt'),
         outputArea: document.getElementById('output'),
@@ -117,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event listeners
     elements.sendButton.addEventListener('click', sendMessage);
+    elements.stopButton.addEventListener('click', handleStopResponse);
     elements.clearButton.addEventListener('click', handleClearConversation);
     elements.togglePromptButton.addEventListener('click', handleTogglePrompt);
     elements.clearConsoleButton.addEventListener('click', handleClearConsole);
@@ -167,6 +169,10 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.progressContainer.classList.add('active');
         timer.start();
         
+        // Show stop button, hide send button
+        elements.sendButton.style.display = 'none';
+        elements.stopButton.style.display = 'flex';
+        
         // Add response container
         const responseDiv = chatManager.createAssistantMessageContainer();
 
@@ -186,6 +192,10 @@ document.addEventListener('DOMContentLoaded', () => {
         timer.stop();
         elements.progressContainer.classList.remove('active');
         
+        // Hide stop button, show send button
+        elements.stopButton.style.display = 'none';
+        elements.sendButton.style.display = 'block';
+        
         chatManager.enableInput();
         chatManager.scrollToBottom();
         
@@ -198,6 +208,24 @@ document.addEventListener('DOMContentLoaded', () => {
         chatManager.clearOutput();
         elements.userInput.focus();
         updateTokenCount();
+    }
+    
+    function handleStopResponse() {
+        if (chatManager.stopResponse()) {
+            // Stop timer and hide progress indicator
+            timer.stop();
+            elements.progressContainer.classList.remove('active');
+            
+            // Hide stop button, show send button
+            elements.stopButton.style.display = 'none';
+            elements.sendButton.style.display = 'block';
+            
+            // Re-enable input
+            chatManager.enableInput();
+            
+            // Update token count
+            setTimeout(updateTokenCount, 100);
+        }
     }
 
     function handleTogglePrompt() {

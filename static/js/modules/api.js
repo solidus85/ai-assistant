@@ -5,7 +5,7 @@ export async function checkHealth() {
     return await response.json();
 }
 
-export async function sendChatMessage(message) {
+export async function sendChatMessage(message, abortSignal) {
     const response = await fetch('/api/chat/stream', {
         method: 'POST',
         headers: {
@@ -13,7 +13,8 @@ export async function sendChatMessage(message) {
         },
         body: JSON.stringify({ 
             message: message
-        })
+        }),
+        signal: abortSignal
     });
     return response;
 }
