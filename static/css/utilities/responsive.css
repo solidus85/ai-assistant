@@ -1,6 +1,6 @@
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .container {
-        padding: 10px;
+        padding: 15px;
     }
     
     header {
@@ -18,14 +18,37 @@
     }
     
     .chat-container {
-        height: calc(100vh - 250px);
+        height: calc(100vh - 400px);
+        padding: 15px;
     }
     
     .input-container {
         flex-direction: column;
     }
     
+    .button-group {
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .send-button {
+        flex: 1;
+        margin-right: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .button-group {
+        flex-direction: column;
+    }
+    
     .send-button {
         width: 100%;
+        margin-right: 0;
     }
 }

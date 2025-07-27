@@ -3,7 +3,7 @@
     border-radius: 8px;
     box-shadow: 0 2px 4px var(--shadow);
     padding: 20px;
-    height: calc(100vh - 350px);
+    height: calc(100vh - 300px);
     display: flex;
     flex-direction: column;
     border: 1px solid var(--border-color);
