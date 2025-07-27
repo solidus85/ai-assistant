@@ -19,6 +19,8 @@
 @import url('./components/prompt-display.css');
 @import url('./components/system-prompt.css');
 @import url('./components/console-entry.css');
+@import url('./components/tabs.css');
+@import url('./components/summarize.css');
 
 /* Utility styles */
 @import url('./utilities/responsive.css');

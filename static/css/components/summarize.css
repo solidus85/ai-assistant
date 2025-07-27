@@ -1,0 +1,129 @@
+.summarize-container {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px var(--shadow);
+    padding: 25px;
+    border: 1px solid var(--border-color);
+}
+
+.summarize-header {
+    margin-bottom: 25px;
+}
+
+.summarize-header h2 {
+    color: var(--text-primary);
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+.summarize-description {
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.summarize-input-container {
+    margin-bottom: 25px;
+}
+
+.summarize-input {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 15px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 200px;
+    max-height: 400px;
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+.summarize-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.summarize-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.summarize-button {
+    padding: 12px 30px;
+    background-color: var(--accent-primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.summarize-button:hover:not(:disabled) {
+    background-color: #4090ff;
+}
+
+.summarize-button:disabled {
+    background-color: var(--bg-tertiary);
+    color: var(--text-tertiary);
+    cursor: not-allowed;
+}
+
+.summarize-output {
+    background-color: var(--bg-tertiary);
+    border-radius: 4px;
+    padding: 20px;
+    min-height: 150px;
+    border: 1px solid var(--border-color);
+}
+
+.summarize-welcome {
+    color: var(--text-tertiary);
+    font-style: italic;
+    text-align: center;
+}
+
+.summarize-result {
+    color: var(--text-primary);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.summarize-result.loading {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.summarize-result.error {
+    color: var(--accent-error);
+    background-color: rgba(248, 81, 73, 0.1);
+    padding: 10px;
+    border-radius: 4px;
+    border-left: 4px solid var(--accent-error);
+}
+
+/* Token counter specific to summarize */
+#summarize-token-counter {
+    margin-left: auto;
+    font-size: 13px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .summarize-controls {
+        flex-wrap: wrap;
+    }
+    
+    #summarize-token-counter {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 10px;
+    }
+}

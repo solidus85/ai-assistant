@@ -27,7 +27,13 @@
         <main>
             <div class="main-layout">
                 <div class="main-content">
-                    <div class="system-prompt-container">
+                    <div class="tab-navigation">
+                        <button class="tab-button active" data-tab="chat">Chat</button>
+                        <button class="tab-button" data-tab="summarize">Summarize</button>
+                    </div>
+                    
+                    <div class="tab-content" id="chat-tab">
+                        <div class="system-prompt-container">
                         <div class="system-prompt-header">
                             <label for="system-prompt">System Prompt:</label>
                             <button id="save-prompt" class="save-button">Save</button>
@@ -56,6 +62,36 @@
                                 <button id="send-button" class="send-button" disabled>Send</button>
                                 <button id="clear-button" class="clear-button" title="Clear output">Clear Output</button>
                                 <button id="toggle-prompt" class="toggle-button" title="Show/hide prompt console">Show Console</button>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    
+                    <div class="tab-content hidden" id="summarize-tab">
+                        <div class="summarize-container">
+                            <div class="summarize-header">
+                                <h2>Text Summarization</h2>
+                                <p class="summarize-description">Paste or type text below to get a concise summary using Phi3:mini</p>
+                            </div>
+                            
+                            <div class="summarize-input-container">
+                                <textarea 
+                                    id="summarize-input" 
+                                    class="summarize-input" 
+                                    placeholder="Paste your text here to summarize..."
+                                    rows="10"
+                                ></textarea>
+                                <div class="summarize-controls">
+                                    <button id="summarize-button" class="summarize-button" disabled>Summarize</button>
+                                    <button id="clear-summarize" class="clear-button">Clear</button>
+                                    <div id="summarize-token-counter" class="token-counter">
+                                        <span id="summarize-token-count">0</span> / <span id="summarize-token-limit">8192</span> tokens
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="summarize-output" class="summarize-output">
+                                <p class="summarize-welcome">Your summary will appear here...</p>
                             </div>
                         </div>
                     </div>

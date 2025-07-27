@@ -7,6 +7,8 @@ import { TokenManager } from './modules/tokens.js';
 import { ChatManager } from './modules/chat.js';
 import { PromptManager } from './modules/prompt.js';
 import { SystemPromptManager } from './modules/system-prompt.js';
+import { TabManager } from './modules/tabs.js';
+import { SummarizeManager } from './modules/summarize.js';
 
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
@@ -26,7 +28,14 @@ document.addEventListener('DOMContentLoaded', () => {
         savePromptButton: document.getElementById('save-prompt'),
         consolePanel: document.getElementById('console-panel'),
         consoleOutput: document.getElementById('console-output'),
-        clearConsoleButton: document.getElementById('clear-console')
+        clearConsoleButton: document.getElementById('clear-console'),
+        // Summarize tab elements
+        summarizeInput: document.getElementById('summarize-input'),
+        summarizeOutput: document.getElementById('summarize-output'),
+        summarizeButton: document.getElementById('summarize-button'),
+        clearSummarizeButton: document.getElementById('clear-summarize'),
+        summarizeTokenCount: document.getElementById('summarize-token-count'),
+        summarizeTokenLimit: document.getElementById('summarize-token-limit')
     };
 
     
@@ -59,6 +68,17 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.systemPrompt,
         elements.savePromptButton
     );
+    
+    const tabManager = new TabManager();
+    
+    const summarizeManager = new SummarizeManager({
+        summarizeInput: elements.summarizeInput,
+        summarizeOutput: elements.summarizeOutput,
+        summarizeButton: elements.summarizeButton,
+        clearSummarizeButton: elements.clearSummarizeButton,
+        summarizeTokenCount: elements.summarizeTokenCount,
+        summarizeTokenLimit: elements.summarizeTokenLimit
+    });
 
     // Initialize console state
     promptManager.setShowConsole(getShowPrompts());
@@ -66,6 +86,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load and setup system prompt
     systemPromptManager.loadSystemPrompt();
     systemPromptManager.setupEventListeners();
+    
+    // Setup tab navigation
+    tabManager.setupEventListeners();
+    
+    // Setup summarization
+    summarizeManager.setupEventListeners();
 
     // Check health and update tokens on load
     performHealthCheck();
