@@ -49,7 +49,7 @@ MODELS = {
     },
     'mistral': {
         'name': 'mistral:7b',
-        'installed': False,
+        'installed': True,
         'speed': '1-2 seconds',
         'quality': 'Good, very fast',
         'size': '4.1 GB'
