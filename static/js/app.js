@@ -10,6 +10,7 @@ import { SystemPromptManager } from './modules/system-prompt.js';
 import { TabManager } from './modules/tabs.js';
 import { SummarizeManager } from './modules/summarize.js';
 import { SummarizeSystemPromptManager } from './modules/summarize-system-prompt.js';
+import { Timer } from './modules/timer.js';
 
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
@@ -38,7 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
         summarizeTokenCount: document.getElementById('summarize-token-count'),
         summarizeTokenLimit: document.getElementById('summarize-token-limit'),
         summarizeSystemPrompt: document.getElementById('summarize-system-prompt'),
-        saveSummarizePromptButton: document.getElementById('save-summarize-prompt')
+        saveSummarizePromptButton: document.getElementById('save-summarize-prompt'),
+        // Progress indicator elements
+        progressContainer: document.getElementById('progress-container'),
+        timerDisplay: document.getElementById('timer-display')
     };
 
     
@@ -87,6 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.summarizeSystemPrompt,
         elements.saveSummarizePromptButton
     );
+    
+    const timer = new Timer(elements.timerDisplay);
 
     // Initialize console state
     promptManager.setShowConsole(getShowPrompts());
@@ -157,6 +163,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Clear input
         elements.userInput.value = '';
         
+        // Show progress indicator and start timer
+        elements.progressContainer.classList.add('active');
+        timer.start();
+        
         // Add response container
         const responseDiv = chatManager.createAssistantMessageContainer();
 
@@ -165,12 +175,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 message,
                 (fullPrompt) => {
                     promptManager.displayPrompt(fullPrompt);
-                }
+                },
+                timer.getElapsedTime()
             );
         } catch (error) {
             chatManager.displayError('Failed to connect to server');
         }
 
+        // Stop timer and hide progress indicator
+        timer.stop();
+        elements.progressContainer.classList.remove('active');
+        
         chatManager.enableInput();
         chatManager.scrollToBottom();
         

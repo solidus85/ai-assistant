@@ -21,12 +21,21 @@ export class ChatManager {
 
     createAssistantMessageContainer() {
         const responseContainer = createElement('div', 'message assistant-message',
-            '<strong>Assistant:</strong> <span id="streaming-response" class="response"></span>');
+            `<strong>Assistant:</strong> 
+            <span class="message-loading">
+                <span>Thinking</span>
+                <span class="typing-indicator">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </span>
+            </span>
+            <span id="streaming-response" class="response" style="display: none;"></span>`);
         this.outputArea.appendChild(responseContainer);
         return document.getElementById('streaming-response');
     }
 
-    async streamResponse(message, onPromptDisplay) {
+    async streamResponse(message, onPromptDisplay, responseTime) {
         const response = await sendChatMessage(message);
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
@@ -53,7 +62,18 @@ export class ChatManager {
                         }
                         
                         if (data.token) {
-                            document.getElementById('streaming-response').textContent += data.token;
+                            const streamingSpan = document.getElementById('streaming-response');
+                            
+                            // Hide loading indicator on first token
+                            if (tokenCount === 0) {
+                                const loadingSpan = streamingSpan.parentElement.querySelector('.message-loading');
+                                if (loadingSpan) {
+                                    loadingSpan.style.display = 'none';
+                                }
+                                streamingSpan.style.display = 'inline';
+                            }
+                            
+                            streamingSpan.textContent += data.token;
                             totalChars += data.token.length;
                             tokenCount++;
                         }
@@ -63,6 +83,13 @@ export class ChatManager {
                             console.log(`Total response length: ${totalChars} characters, ${tokenCount} tokens`);
                             if (data.eval_count) {
                                 console.log(`Model reported ${data.eval_count} tokens generated`);
+                            }
+                            
+                            // Add response time to the message
+                            if (responseTime) {
+                                const timeDiv = createElement('div', 'response-time', 
+                                    `Response time: ${responseTime.toFixed(1)}s`);
+                                document.getElementById('streaming-response').parentElement.appendChild(timeDiv);
                             }
                         }
                         
