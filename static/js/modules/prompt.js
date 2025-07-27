@@ -3,75 +3,70 @@
 import { escapeHtml, createElement } from '../utils/dom.js';
 
 export class PromptManager {
-    constructor(outputArea, toggleButton) {
-        this.outputArea = outputArea;
+    constructor(consoleOutput, toggleButton, consolePanel) {
+        this.consoleOutput = consoleOutput;
         this.toggleButton = toggleButton;
-        this.showPrompts = false;
+        this.consolePanel = consolePanel;
+        this.showConsole = false;
     }
 
-    setShowPrompts(show) {
-        this.showPrompts = show;
-        this.toggleButton.textContent = show ? 'Hide Prompt' : 'Show Prompt';
+    setShowConsole(show) {
+        this.showConsole = show;
+        this.toggleButton.textContent = show ? 'Hide Console' : 'Show Console';
+        
+        if (show) {
+            this.consolePanel.classList.remove('hidden');
+        } else {
+            this.consolePanel.classList.add('hidden');
+        }
     }
 
     toggle() {
-        this.setShowPrompts(!this.showPrompts);
-        
-        // Hide existing prompt displays if turning off
-        if (!this.showPrompts) {
-            document.querySelectorAll('.prompt-display').forEach(el => el.remove());
-        } else {
-            // Show info message if no messages yet
-            if (this.outputArea.querySelectorAll('.message').length === 0) {
-                this.showInfoMessage();
-            }
-        }
-        
-        return this.showPrompts;
-    }
-
-    showInfoMessage() {
-        const infoDiv = createElement('div', 'prompt-display', `
-            <div class="prompt-header">
-                <strong>Prompt Display Enabled</strong>
-            </div>
-            <div class="prompt-content">
-                Send a new message to see the full prompt that will be sent to the model.
-                The prompt includes all conversation history.
-            </div>
-        `);
-        this.outputArea.appendChild(infoDiv);
+        this.setShowConsole(!this.showConsole);
+        return this.showConsole;
     }
 
     displayPrompt(prompt) {
-        if (!this.showPrompts) return;
+        // Remove welcome message if it exists
+        const welcomeMsg = this.consoleOutput.querySelector('.console-welcome');
+        if (welcomeMsg) {
+            welcomeMsg.remove();
+        }
 
-        const promptDiv = createElement('div', 'prompt-display', `
-            <div class="prompt-header">
-                <strong>Full Prompt Sent to Model:</strong>
-                <button class="copy-prompt" onclick="window.copyPrompt(this)">Copy</button>
+        // Create timestamp
+        const timestamp = new Date().toLocaleTimeString();
+        
+        const promptEntry = createElement('div', 'console-entry', `
+            <div class="console-entry-header">
+                <span class="console-entry-time">${timestamp}</span>
+                <button class="copy-console-prompt" onclick="window.copyConsolePrompt(this)">Copy</button>
             </div>
-            <pre class="prompt-content">${escapeHtml(prompt)}</pre>
+            <pre class="console-entry-content">${escapeHtml(prompt)}</pre>
         `);
         
-        // Insert after the last user message (before assistant message)
-        const messages = this.outputArea.querySelectorAll('.message');
-        if (messages.length >= 2) {
-            const lastUserMessage = messages[messages.length - 2];
-            lastUserMessage.after(promptDiv);
-        } else if (messages.length === 1) {
-            messages[0].after(promptDiv);
-        } else {
-            this.outputArea.appendChild(promptDiv);
+        // Add to console output
+        this.consoleOutput.appendChild(promptEntry);
+        
+        // Auto-scroll to bottom
+        this.consoleOutput.scrollTop = this.consoleOutput.scrollHeight;
+        
+        // Auto-show console if hidden
+        if (!this.showConsole) {
+            this.setShowConsole(true);
         }
+    }
+    
+    clearConsole() {
+        this.consoleOutput.innerHTML = '<p class="console-welcome">Prompts will appear here when you send messages...</p>';
     }
 }
 
 // Global function for copy button
-window.copyPrompt = function(button) {
+window.copyConsolePrompt = function(button) {
     const promptContent = button.parentElement.nextElementSibling.textContent;
     navigator.clipboard.writeText(promptContent).then(() => {
+        const originalText = button.textContent;
         button.textContent = 'Copied!';
-        setTimeout(() => button.textContent = 'Copy', 2000);
+        setTimeout(() => button.textContent = originalText, 2000);
     });
 }

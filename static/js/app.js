@@ -23,7 +23,10 @@ document.addEventListener('DOMContentLoaded', () => {
         tokenLimit: document.getElementById('token-limit'),
         tokenBarFill: document.getElementById('token-bar-fill'),
         systemPrompt: document.getElementById('system-prompt'),
-        savePromptButton: document.getElementById('save-prompt')
+        savePromptButton: document.getElementById('save-prompt'),
+        consolePanel: document.getElementById('console-panel'),
+        consoleOutput: document.getElementById('console-output'),
+        clearConsoleButton: document.getElementById('clear-console')
     };
 
     
@@ -47,8 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
     );
     
     const promptManager = new PromptManager(
-        elements.outputArea,
-        elements.togglePromptButton
+        elements.consoleOutput,
+        elements.togglePromptButton,
+        elements.consolePanel
     );
     
     const systemPromptManager = new SystemPromptManager(
@@ -56,8 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.savePromptButton
     );
 
-    // Initialize prompt display state
-    promptManager.setShowPrompts(getShowPrompts());
+    // Initialize console state
+    promptManager.setShowConsole(getShowPrompts());
     
     // Load and setup system prompt
     systemPromptManager.loadSystemPrompt();
@@ -71,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.sendButton.addEventListener('click', sendMessage);
     elements.clearButton.addEventListener('click', handleClearConversation);
     elements.togglePromptButton.addEventListener('click', handleTogglePrompt);
+    elements.clearConsoleButton.addEventListener('click', handleClearConsole);
     
     elements.userInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -143,8 +148,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleTogglePrompt() {
-        const showPrompts = promptManager.toggle();
-        setShowPrompts(showPrompts);
+        const showConsole = promptManager.toggle();
+        setShowPrompts(showConsole);
+    }
+    
+    function handleClearConsole() {
+        promptManager.clearConsole();
     }
 
     async function updateTokenCount() {
