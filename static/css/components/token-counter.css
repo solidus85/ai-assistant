@@ -3,20 +3,21 @@
     align-items: center;
     gap: 10px;
     font-size: 14px;
-    color: #666;
+    color: var(--text-secondary);
 }
 
 .token-bar {
     width: 120px;
     height: 6px;
-    background-color: #e0e0e0;
+    background-color: var(--bg-tertiary);
     border-radius: 3px;
     overflow: hidden;
+    border: 1px solid var(--border-color);
 }
 
 .token-bar-fill {
     height: 100%;
     width: 0%;
-    background-color: #3498db;
+    background-color: var(--accent-primary);
     transition: width 0.3s ease, background-color 0.3s ease;
 }

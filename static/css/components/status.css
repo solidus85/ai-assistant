@@ -3,7 +3,7 @@
     align-items: center;
     gap: 8px;
     font-size: 14px;
-    color: #666;
+    color: var(--text-secondary);
 }
 
 .status-dot {
@@ -14,13 +14,13 @@
 }
 
 .status-dot.connected {
-    background-color: #4caf50;
+    background-color: var(--accent-success);
 }
 
 .status-dot.warning {
-    background-color: #ff9800;
+    background-color: var(--accent-warning);
 }
 
 .status-dot.disconnected {
-    background-color: #f44336;
+    background-color: var(--accent-error);
 }

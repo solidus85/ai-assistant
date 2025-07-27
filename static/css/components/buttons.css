@@ -1,6 +1,6 @@
 .send-button {
     padding: 12px 24px;
-    background-color: #3498db;
+    background-color: var(--accent-primary);
     color: white;
     border: none;
     border-radius: 4px;
@@ -11,55 +11,59 @@
 }
 
 .send-button:hover:not(:disabled) {
-    background-color: #2980b9;
+    background-color: #4090ff;
 }
 
 .send-button:disabled {
-    background-color: #bdc3c7;
+    background-color: var(--bg-tertiary);
+    color: var(--text-tertiary);
     cursor: not-allowed;
 }
 
 .clear-button {
     padding: 8px 16px;
-    background-color: #95a5a6;
-    color: white;
-    border: none;
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 14px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 .clear-button:hover {
-    background-color: #7f8c8d;
+    background-color: var(--bg-primary);
+    border-color: var(--text-tertiary);
 }
 
 .toggle-button {
     padding: 8px 16px;
-    background-color: #9b59b6;
-    color: white;
-    border: none;
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 14px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 .toggle-button:hover {
-    background-color: #8e44ad;
+    background-color: var(--bg-primary);
+    border-color: var(--text-tertiary);
 }
 
 .copy-prompt {
     padding: 4px 12px;
-    background-color: #6c757d;
-    color: white;
-    border: none;
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 12px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 .copy-prompt:hover {
-    background-color: #5a6268;
+    background-color: var(--bg-primary);
+    border-color: var(--text-tertiary);
 }

@@ -108,8 +108,11 @@ def count_tokens():
     
     token_counter = TokenCounter()
     
-    # Just count tokens in the current message
-    token_count = token_counter.count(message)
+    # Include system prompt in token count
+    system_prompt = current_app.config.get('SYSTEM_PROMPT', '')
+    full_context = f"System: {system_prompt}\n\nUser: {message}" if system_prompt else message
+    
+    token_count = token_counter.count(full_context)
     
     return jsonify({
         'count': token_count,

@@ -18,11 +18,11 @@ export class TokenManager {
             
             // Change color based on usage
             if (percentage > 90) {
-                this.tokenBarFill.style.backgroundColor = '#e74c3c';
+                this.tokenBarFill.style.backgroundColor = '#f85149';  // --accent-error
             } else if (percentage > 70) {
-                this.tokenBarFill.style.backgroundColor = '#f39c12';
+                this.tokenBarFill.style.backgroundColor = '#d29922';  // --accent-warning
             } else {
-                this.tokenBarFill.style.backgroundColor = '#3498db';
+                this.tokenBarFill.style.backgroundColor = '#58a6ff';  // --accent-primary
             }
         }
     }
