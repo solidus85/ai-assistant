@@ -1,0 +1,157 @@
+// Main application entry point
+
+import { getSessionId, setSessionId, getShowPrompts, setShowPrompts } from './utils/storage.js';
+import { checkHealth, clearConversation, getTokenCount } from './modules/api.js';
+import { StatusManager } from './modules/status.js';
+import { TokenManager } from './modules/tokens.js';
+import { ChatManager } from './modules/chat.js';
+import { PromptManager } from './modules/prompt.js';
+
+// Initialize on DOM load
+document.addEventListener('DOMContentLoaded', () => {
+    // Elements
+    const elements = {
+        userInput: document.getElementById('user-input'),
+        sendButton: document.getElementById('send-button'),
+        clearButton: document.getElementById('clear-button'),
+        togglePromptButton: document.getElementById('toggle-prompt'),
+        outputArea: document.getElementById('output'),
+        statusDot: document.getElementById('status-dot'),
+        statusText: document.getElementById('status-text'),
+        tokenCount: document.getElementById('token-count'),
+        tokenLimit: document.getElementById('token-limit'),
+        tokenBarFill: document.getElementById('token-bar-fill')
+    };
+
+    // Session management
+    let sessionId = getSessionId();
+    
+    // Initialize managers
+    const statusManager = new StatusManager(
+        elements.statusDot, 
+        elements.statusText, 
+        elements.tokenLimit
+    );
+    
+    const tokenManager = new TokenManager(
+        elements.tokenCount,
+        elements.tokenLimit,
+        elements.tokenBarFill
+    );
+    
+    const chatManager = new ChatManager(
+        elements.outputArea,
+        elements.userInput,
+        elements.sendButton
+    );
+    
+    const promptManager = new PromptManager(
+        elements.outputArea,
+        elements.togglePromptButton
+    );
+
+    // Initialize prompt display state
+    promptManager.setShowPrompts(getShowPrompts());
+
+    // Check health and update tokens on load
+    performHealthCheck();
+    updateTokenCount();
+
+    // Event listeners
+    elements.sendButton.addEventListener('click', sendMessage);
+    elements.clearButton.addEventListener('click', handleClearConversation);
+    elements.togglePromptButton.addEventListener('click', handleTogglePrompt);
+    
+    elements.userInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    elements.userInput.addEventListener('input', () => {
+        elements.sendButton.disabled = elements.userInput.value.trim() === '';
+        updateTokenCount();
+    });
+
+    // Functions
+    async function performHealthCheck() {
+        try {
+            const data = await checkHealth();
+            statusManager.updateStatus(data);
+        } catch (error) {
+            statusManager.setError();
+        }
+    }
+
+    async function sendMessage() {
+        const message = elements.userInput.value.trim();
+        if (!message) return;
+
+        chatManager.disableInput();
+        chatManager.addUserMessage(message);
+        
+        // Clear input
+        elements.userInput.value = '';
+        
+        // Add response container
+        const responseDiv = chatManager.createAssistantMessageContainer();
+
+        try {
+            await chatManager.streamResponse(
+                message, 
+                sessionId,
+                (newSessionId) => {
+                    sessionId = newSessionId;
+                    setSessionId(sessionId);
+                },
+                (fullPrompt) => {
+                    promptManager.displayPrompt(fullPrompt);
+                }
+            );
+        } catch (error) {
+            chatManager.displayError('Failed to connect to server');
+        }
+
+        chatManager.enableInput();
+        chatManager.scrollToBottom();
+        
+        // Update token count after message sent
+        setTimeout(updateTokenCount, 100);
+    }
+
+    async function handleClearConversation() {
+        if (!sessionId) return;
+        
+        if (confirm('Clear conversation history?')) {
+            try {
+                const response = await clearConversation(sessionId);
+                
+                if (response.ok) {
+                    chatManager.clearOutput();
+                    elements.userInput.focus();
+                    updateTokenCount();
+                }
+            } catch (error) {
+                console.error('Failed to clear conversation:', error);
+            }
+        }
+    }
+
+    function handleTogglePrompt() {
+        const showPrompts = promptManager.toggle();
+        setShowPrompts(showPrompts);
+    }
+
+    async function updateTokenCount() {
+        try {
+            const data = await getTokenCount(sessionId, elements.userInput.value);
+            tokenManager.updateTokenDisplay(data);
+        } catch (error) {
+            console.error('Failed to update token count:', error);
+        }
+    }
+
+    // Periodic health check
+    setInterval(performHealthCheck, 30000);
+});
