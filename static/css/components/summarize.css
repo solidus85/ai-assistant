@@ -22,6 +22,10 @@
     line-height: 1.5;
 }
 
+.summarize-container .system-prompt-container {
+    margin-bottom: 20px;
+}
+
 .summarize-input-container {
     margin-bottom: 25px;
 }

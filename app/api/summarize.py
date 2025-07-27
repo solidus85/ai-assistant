@@ -9,8 +9,8 @@ from app.utils.token_counter import TokenCounter
 bp = Blueprint('summarize', __name__, url_prefix='/api')
 logger = logging.getLogger(__name__)
 
-# Fixed system prompt for summarization
-SUMMARIZATION_PROMPT = """Task: Read the paragraph and rewrite it to preserve only the essential meaning.
+# Default system prompt for summarization
+DEFAULT_SUMMARIZATION_PROMPT = """Task: Read the paragraph and rewrite it to preserve only the essential meaning.
 Remove filler, repetition, and minor details. Keep it concise but clear.
 Limit the output to 2–3 sentences if needed, but prioritize clarity and brevity."""
 
@@ -58,9 +58,12 @@ def generate_summarization_stream(user_input: str):
             "gpu_layers": current_app.config.get('GPU_LAYERS', 99)
         }
         
-        # Stream response from Ollama with fixed system prompt
+        # Get the current summarization system prompt from config
+        system_prompt = current_app.config.get('SUMMARIZE_SYSTEM_PROMPT', DEFAULT_SUMMARIZATION_PROMPT)
+        
+        # Stream response from Ollama with system prompt
         full_response = ""
-        for chunk in ollama.generate_stream(user_input, options, SUMMARIZATION_PROMPT):
+        for chunk in ollama.generate_stream(user_input, options, system_prompt):
             if 'error' in chunk:
                 yield json.dumps({
                     'error': chunk['error'],
@@ -106,8 +109,11 @@ def count_summarize_tokens():
     
     token_counter = TokenCounter()
     
+    # Get the current summarization system prompt from config
+    system_prompt = current_app.config.get('SUMMARIZE_SYSTEM_PROMPT', DEFAULT_SUMMARIZATION_PROMPT)
+    
     # Include system prompt in token count
-    full_context = f"System: {SUMMARIZATION_PROMPT}\n\nUser: {text}"
+    full_context = f"System: {system_prompt}\n\nUser: {text}"
     token_count = token_counter.count(full_context)
     
     return jsonify({

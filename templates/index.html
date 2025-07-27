@@ -74,6 +74,19 @@
                                 <p class="summarize-description">Paste or type text below to get a concise summary using Phi3:mini</p>
                             </div>
                             
+                            <div class="system-prompt-container">
+                                <div class="system-prompt-header">
+                                    <label for="summarize-system-prompt">Summarization System Prompt:</label>
+                                    <button id="save-summarize-prompt" class="save-button">Save</button>
+                                </div>
+                                <textarea 
+                                    id="summarize-system-prompt" 
+                                    class="system-prompt-input" 
+                                    placeholder="Enter summarization system prompt..."
+                                    rows="3"
+                                ></textarea>
+                            </div>
+                            
                             <div class="summarize-input-container">
                                 <textarea 
                                     id="summarize-input" 

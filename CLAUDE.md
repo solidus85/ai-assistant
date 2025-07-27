@@ -5,12 +5,15 @@ Building a Flask web app that interfaces with Ollama to run LLMs locally with GP
 
 ## Current Status
 - ✅ Flask app refactored into modular structure
-- ✅ Streaming responses with conversation history
-- ✅ Token counter with 32K context window
+- ✅ Streaming responses ~~with conversation history~~ (simplified to single request/response)
+- ✅ Token counter with 32K context window (increased from 8K)
 - ✅ GPU acceleration working (RTX 4080, 16GB VRAM)
-- ✅ Prompt display feature to show full context
-- ✅ Bug fixes for token counter and prompt display
-- ✅ WSL successfully moved from C: to D: drive
+- ✅ Prompt display feature in separate console panel
+- ✅ Dark mode theme implemented
+- ✅ System prompt configuration with UI
+- ✅ Text summarization feature with dedicated tab
+- ✅ Wider layout for better screen utilization
+- ✅ User message formatting preservation
 
 ## Hardware Capabilities
 - **GPU**: RTX 4080 with 16GB VRAM
@@ -28,19 +31,34 @@ llm/
 │   ├── api/               # API blueprints
 │   │   ├── health.py      # Health check endpoints
 │   │   ├── chat.py        # Chat streaming endpoints
-│   │   └── conversation.py # Conversation management
+│   │   ├── conversation.py # Conversation management
+│   │   ├── settings.py    # System prompt settings
+│   │   └── summarize.py   # Text summarization endpoint
 │   ├── services/          # Business logic
-│   │   ├── ollama_service.py      # Ollama API client
+│   │   ├── ollama_service.py      # Ollama API client (uses chat endpoint)
 │   │   └── conversation_service.py # Conversation history
 │   ├── models/            # Data models (future use)
 │   └── utils/             # Utilities
 │       ├── extensions.py  # Service singletons
 │       └── token_counter.py # Token counting
-├── static/                # CSS, JS files
+├── static/                
+│   ├── css/              # Modularized CSS
+│   │   ├── base/         # Reset, animations
+│   │   ├── components/   # UI components
+│   │   ├── layout/       # Page structure
+│   │   └── utilities/    # Responsive design
+│   └── js/               # Modularized JavaScript
+│       ├── modules/      # Feature modules
+│       └── utils/        # Helper functions
 ├── templates/             # HTML templates
-├── config.py             # Configuration classes
-├── run.py                # Application entry point
-└── requirements.txt      # Dependencies
+├── scripts/              # Organized scripts
+│   ├── setup/           # Setup scripts
+│   ├── debug/           # Testing/debug scripts
+│   └── utilities/       # Utility scripts
+├── docs/                 # Documentation
+├── config.py            # Configuration classes
+├── run.py               # Application entry point
+└── requirements.txt     # Dependencies
 ```
 
 ## Key Features

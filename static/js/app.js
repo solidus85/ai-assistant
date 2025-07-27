@@ -9,6 +9,7 @@ import { PromptManager } from './modules/prompt.js';
 import { SystemPromptManager } from './modules/system-prompt.js';
 import { TabManager } from './modules/tabs.js';
 import { SummarizeManager } from './modules/summarize.js';
+import { SummarizeSystemPromptManager } from './modules/summarize-system-prompt.js';
 
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
@@ -35,7 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
         summarizeButton: document.getElementById('summarize-button'),
         clearSummarizeButton: document.getElementById('clear-summarize'),
         summarizeTokenCount: document.getElementById('summarize-token-count'),
-        summarizeTokenLimit: document.getElementById('summarize-token-limit')
+        summarizeTokenLimit: document.getElementById('summarize-token-limit'),
+        summarizeSystemPrompt: document.getElementById('summarize-system-prompt'),
+        saveSummarizePromptButton: document.getElementById('save-summarize-prompt')
     };
 
     
@@ -79,6 +82,11 @@ document.addEventListener('DOMContentLoaded', () => {
         summarizeTokenCount: elements.summarizeTokenCount,
         summarizeTokenLimit: elements.summarizeTokenLimit
     });
+    
+    const summarizeSystemPromptManager = new SummarizeSystemPromptManager(
+        elements.summarizeSystemPrompt,
+        elements.saveSummarizePromptButton
+    );
 
     // Initialize console state
     promptManager.setShowConsole(getShowPrompts());
@@ -92,6 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Setup summarization
     summarizeManager.setupEventListeners();
+    
+    // Load and setup summarize system prompt
+    summarizeSystemPromptManager.loadSystemPrompt();
+    summarizeSystemPromptManager.setupEventListeners();
 
     // Check health and update tokens on load
     performHealthCheck();

@@ -19,8 +19,12 @@ class Config:
     TEMPERATURE = float(os.environ.get('TEMPERATURE', 0.7))
     NUM_CTX = int(os.environ.get('NUM_CTX', 32768))  # 32K context for Phi-3 (can go up to 128K)
     
-    # System prompt
+    # System prompts
     SYSTEM_PROMPT = os.environ.get('SYSTEM_PROMPT', 'You are a helpful AI assistant. Provide clear, accurate, and well-structured responses.')
+    SUMMARIZE_SYSTEM_PROMPT = os.environ.get('SUMMARIZE_SYSTEM_PROMPT', 
+        'Task: Read the paragraph and rewrite it to preserve only the essential meaning. '
+        'Remove filler, repetition, and minor details. Keep it concise but clear. '
+        'Limit the output to 2–3 sentences if needed, but prioritize clarity and brevity.')
     NUM_BATCH = int(os.environ.get('NUM_BATCH', 512))  # Optimal batch size for RTX 4080
     NUM_THREAD = int(os.environ.get('NUM_THREAD', 16))  # More threads with available CPU
     TOP_K = int(os.environ.get('TOP_K', 40))
