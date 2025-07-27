@@ -249,25 +249,25 @@
 
         async function updateTokenCount() {
             try {
-                const response = await fetch('/api/tokens/count', {
+                const response = await fetch('/api/chat/tokens', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        session_id: sessionId,
-                        message: userInput.value
+                        session_id: sessionId || '',
+                        message: userInput.value || ''
                     })
                 });
                 
                 const data = await response.json();
                 
-                if (data.status === 'success') {
-                    tokenCount.textContent = data.token_count;
-                    tokenLimit.textContent = data.context_limit;
+                if (data.count !== undefined && data.limit !== undefined) {
+                    tokenCount.textContent = data.count;
+                    tokenLimit.textContent = data.limit;
                     
                     // Update progress bar
-                    const percentage = Math.min(data.percentage, 100);
+                    const percentage = Math.min((data.count / data.limit) * 100, 100);
                     tokenBarFill.style.width = percentage + '%';
                     
                     // Change color based on usage
@@ -292,6 +292,22 @@
             // Hide existing prompt displays if turning off
             if (!showPrompts) {
                 document.querySelectorAll('.prompt-display').forEach(el => el.remove());
+            } else {
+                // Show a message about how to use the feature
+                if (outputArea.querySelectorAll('.message').length === 0) {
+                    const infoDiv = document.createElement('div');
+                    infoDiv.className = 'prompt-display';
+                    infoDiv.innerHTML = `
+                        <div class="prompt-header">
+                            <strong>Prompt Display Enabled</strong>
+                        </div>
+                        <div class="prompt-content">
+                            Send a new message to see the full prompt that will be sent to the model.
+                            The prompt includes all conversation history.
+                        </div>
+                    `;
+                    outputArea.appendChild(infoDiv);
+                }
             }
         }
         
@@ -306,11 +322,18 @@
                 <pre class="prompt-content">${escapeHtml(prompt)}</pre>
             `;
             
-            // Insert before the last message
+            // Insert after the last user message (before assistant message)
             const messages = outputArea.querySelectorAll('.message');
-            if (messages.length > 0) {
-                const lastUserMessage = messages[messages.length - 2]; // User message is second to last
+            if (messages.length >= 2) {
+                // Find the last user message
+                const lastUserMessage = messages[messages.length - 2];
                 lastUserMessage.after(promptDiv);
+            } else if (messages.length === 1) {
+                // If only one message, append after it
+                messages[0].after(promptDiv);
+            } else {
+                // If no messages, just append to output area
+                outputArea.appendChild(promptDiv);
             }
         }
         
