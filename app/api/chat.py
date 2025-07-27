@@ -44,6 +44,9 @@ def generate_chat_stream(user_input: str, session_id: str = None):
         # Build conversation context
         context = conversation.build_context(session_id, user_input)
         
+        # Send the full prompt immediately if requested
+        yield json.dumps({'full_prompt': context}) + '\n'
+        
         # Start timing
         start_time = time.time()
         

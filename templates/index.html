@@ -40,6 +40,7 @@
                     <div class="button-group">
                         <button id="send-button" class="send-button" disabled>Send</button>
                         <button id="clear-button" class="clear-button" title="Clear conversation history">Clear</button>
+                        <button id="toggle-prompt" class="toggle-button" title="Show/hide full prompt">Show Prompt</button>
                     </div>
                 </div>
             </div>
@@ -51,6 +52,7 @@
         const userInput = document.getElementById('user-input');
         const sendButton = document.getElementById('send-button');
         const clearButton = document.getElementById('clear-button');
+        const togglePromptButton = document.getElementById('toggle-prompt');
         const outputArea = document.getElementById('output');
         const statusDot = document.getElementById('status-dot');
         const statusText = document.getElementById('status-text');
@@ -60,6 +62,10 @@
 
         // Session management
         let sessionId = localStorage.getItem('chat-session-id');
+        let showPrompts = localStorage.getItem('show-prompts') === 'true';
+        
+        // Update button text based on state
+        togglePromptButton.textContent = showPrompts ? 'Hide Prompt' : 'Show Prompt';
 
         // Check Ollama connection on load
         checkHealth();
@@ -68,6 +74,7 @@
         // Event listeners
         sendButton.addEventListener('click', sendMessage);
         clearButton.addEventListener('click', clearConversation);
+        togglePromptButton.addEventListener('click', togglePromptDisplay);
         userInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -176,6 +183,10 @@
                                     sessionId = data.session_id;
                                     localStorage.setItem('chat-session-id', sessionId);
                                 }
+                                
+                                if (data.full_prompt && showPrompts) {
+                                    displayPrompt(data.full_prompt);
+                                }
                             } catch (e) {
                                 console.error('Failed to parse line:', line);
                             }
@@ -273,6 +284,44 @@
             }
         }
 
+        function togglePromptDisplay() {
+            showPrompts = !showPrompts;
+            localStorage.setItem('show-prompts', showPrompts);
+            togglePromptButton.textContent = showPrompts ? 'Hide Prompt' : 'Show Prompt';
+            
+            // Hide existing prompt displays if turning off
+            if (!showPrompts) {
+                document.querySelectorAll('.prompt-display').forEach(el => el.remove());
+            }
+        }
+        
+        function displayPrompt(prompt) {
+            const promptDiv = document.createElement('div');
+            promptDiv.className = 'prompt-display';
+            promptDiv.innerHTML = `
+                <div class="prompt-header">
+                    <strong>Full Prompt Sent to Model:</strong>
+                    <button class="copy-prompt" onclick="copyPrompt(this)">Copy</button>
+                </div>
+                <pre class="prompt-content">${escapeHtml(prompt)}</pre>
+            `;
+            
+            // Insert before the last message
+            const messages = outputArea.querySelectorAll('.message');
+            if (messages.length > 0) {
+                const lastUserMessage = messages[messages.length - 2]; // User message is second to last
+                lastUserMessage.after(promptDiv);
+            }
+        }
+        
+        window.copyPrompt = function(button) {
+            const promptContent = button.parentElement.nextElementSibling.textContent;
+            navigator.clipboard.writeText(promptContent).then(() => {
+                button.textContent = 'Copied!';
+                setTimeout(() => button.textContent = 'Copy', 2000);
+            });
+        }
+        
         // Periodic health check
         setInterval(checkHealth, 30000);
     </script>
