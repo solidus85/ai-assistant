@@ -7,22 +7,22 @@ SPEED_PROFILES = {
     'fast': {
         'NUM_CTX': '4096',
         'MAX_TOKENS': '2048',
-        'description': 'Fast mode: 4K context, ~10-20s responses'
+        'description': 'Fast mode: 4K context, fastest responses'
     },
     'balanced': {
         'NUM_CTX': '8192',
         'MAX_TOKENS': '4096',
-        'description': 'Balanced mode: 8K context, ~15-25s responses'
+        'description': 'Balanced mode: 8K context, good speed/quality balance'
     },
     'quality': {
         'NUM_CTX': '16384',
         'MAX_TOKENS': '8192',
-        'description': 'Quality mode: 16K context, ~25-40s responses'
+        'description': 'Quality mode: 16K context, better for long conversations'
     },
     'max': {
         'NUM_CTX': '32768',
         'MAX_TOKENS': '8192',
-        'description': 'Max mode: 32K context, ~30-60s responses'
+        'description': 'Max mode: 32K context, maximum context'
     }
 }
 

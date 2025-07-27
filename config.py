@@ -17,7 +17,7 @@ class Config:
     # Model performance settings (optimized for RTX 4080)
     MAX_TOKENS = int(os.environ.get('MAX_TOKENS', 8192))  # Increased to allow longer responses
     TEMPERATURE = float(os.environ.get('TEMPERATURE', 0.7))
-    NUM_CTX = int(os.environ.get('NUM_CTX', 16384))  # 16K context - optimal for Llama 3.1
+    NUM_CTX = int(os.environ.get('NUM_CTX', 8192))  # 8K context - faster performance
     
     # System prompts
     SYSTEM_PROMPT = os.environ.get('SYSTEM_PROMPT', 'You are a helpful AI assistant. Provide clear, accurate, and well-structured responses.')
