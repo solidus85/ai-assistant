@@ -7,7 +7,7 @@ class Config:
     # Ollama settings
     OLLAMA_BASE_URL = os.environ.get('OLLAMA_BASE_URL', 'http://localhost:11434')
     DEFAULT_MODEL = os.environ.get('DEFAULT_MODEL', 'mixtral')
-    MODEL_NAME = os.environ.get('MODEL_NAME', 'mistral:7b')
+    MODEL_NAME = os.environ.get('MODEL_NAME', 'llama3.1:8b')
     MAX_CONVERSATION_HISTORY = 10
     
     # Flask settings
@@ -17,7 +17,7 @@ class Config:
     # Model performance settings (optimized for RTX 4080)
     MAX_TOKENS = int(os.environ.get('MAX_TOKENS', 8192))  # Increased to allow longer responses
     TEMPERATURE = float(os.environ.get('TEMPERATURE', 0.7))
-    NUM_CTX = int(os.environ.get('NUM_CTX', 8192))  # Reduced from 32K to 8K for better Mixtral performance
+    NUM_CTX = int(os.environ.get('NUM_CTX', 16384))  # 16K context - optimal for Llama 3.1
     
     # System prompts
     SYSTEM_PROMPT = os.environ.get('SYSTEM_PROMPT', 'You are a helpful AI assistant. Provide clear, accurate, and well-structured responses.')
