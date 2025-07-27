@@ -1,9 +1,9 @@
 """Chat API endpoints."""
-from flask import Blueprint, request, Response, stream_with_context, current_app
+from flask import Blueprint, request, Response, stream_with_context, current_app, jsonify
 import json
 import time
 import logging
-from app.utils.extensions import get_ollama_service, get_conversation_service
+from app.utils.extensions import get_ollama_service
 from app.utils.token_counter import TokenCounter
 
 bp = Blueprint('chat', __name__, url_prefix='/api')
@@ -32,20 +32,17 @@ def chat_stream():
 def generate_chat_stream(user_input: str, session_id: str = None):
     """Generate streaming chat response."""
     ollama = get_ollama_service()
-    conversation = get_conversation_service()
     
     try:
-        # Get or create session
-        session_id = conversation.get_or_create_session(session_id)
-        if not session_id:
-            session_id = conversation.get_or_create_session()
-            yield json.dumps({'session_id': session_id}) + '\n'
+        # Just use the user input directly, no conversation history
+        context = user_input
         
-        # Build conversation context
-        context = conversation.build_context(session_id, user_input)
+        # Get system prompt from config
+        system_prompt = current_app.config.get('SYSTEM_PROMPT', None)
         
         # Send the full prompt immediately if requested
-        yield json.dumps({'full_prompt': context}) + '\n'
+        full_prompt = f"System: {system_prompt}\n\nUser: {context}" if system_prompt else context
+        yield json.dumps({'full_prompt': full_prompt}) + '\n'
         
         # Start timing
         start_time = time.time()
@@ -66,7 +63,7 @@ def generate_chat_stream(user_input: str, session_id: str = None):
         
         # Stream response from Ollama
         full_response = ""
-        for chunk in ollama.generate_stream(context, options):
+        for chunk in ollama.generate_stream(context, options, system_prompt):
             if 'error' in chunk:
                 yield json.dumps({
                     'error': chunk['error'],
@@ -82,8 +79,7 @@ def generate_chat_stream(user_input: str, session_id: str = None):
                 }) + '\n'
             
             if chunk.get('done', False):
-                # Store conversation in history
-                conversation.add_exchange(session_id, user_input, full_response)
+                # No longer storing conversation history
                 
                 total_time = time.time() - start_time
                 yield json.dumps({
@@ -106,19 +102,14 @@ def generate_chat_stream(user_input: str, session_id: str = None):
 
 @bp.route('/chat/tokens', methods=['POST'])
 def count_tokens():
-    """Count tokens in the current conversation."""
+    """Count tokens in the current message."""
     data = request.json
-    session_id = data.get('session_id')
+    message = data.get('message', '')
     
-    if not session_id:
-        return jsonify({'count': 0})
-    
-    conversation = get_conversation_service()
     token_counter = TokenCounter()
     
-    # Build full context to count tokens
-    context = conversation.build_context(session_id, "")
-    token_count = token_counter.count(context)
+    # Just count tokens in the current message
+    token_count = token_counter.count(message)
     
     return jsonify({
         'count': token_count,

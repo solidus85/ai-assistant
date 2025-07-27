@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mixtral Chat Interface</title>
+    <title>LLM Chat Interface</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Mixtral Chat</h1>
+            <h1 id="chat-title">LLM Chat</h1>
             <div class="header-info">
                 <div id="status" class="status">
                     <span class="status-dot" id="status-dot"></span>
@@ -27,7 +27,7 @@
         <main>
             <div class="chat-container">
                 <div id="output" class="output-area">
-                    <p class="welcome-message">Welcome! Ask Mixtral anything...</p>
+                    <p class="welcome-message">Welcome! Ask me anything...</p>
                 </div>
                 
                 <div class="input-container">
@@ -39,7 +39,7 @@
                     ></textarea>
                     <div class="button-group">
                         <button id="send-button" class="send-button" disabled>Send</button>
-                        <button id="clear-button" class="clear-button" title="Clear conversation history">Clear</button>
+                        <button id="clear-button" class="clear-button" title="Clear output">Clear Output</button>
                         <button id="toggle-prompt" class="toggle-button" title="Show/hide full prompt">Show Prompt</button>
                     </div>
                 </div>

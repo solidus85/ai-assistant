@@ -32,13 +32,25 @@ class OllamaService:
             logger.error(f"Health check failed: {e}")
             return {'status': 'disconnected', 'message': str(e)}
     
-    def generate_stream(self, prompt: str, options: Optional[Dict[str, Any]] = None) -> Generator[Dict[str, Any], None, None]:
-        """Generate streaming response from Ollama."""
-        url = f"{self.base_url}/api/generate"
+    def generate_stream(self, prompt: str, options: Optional[Dict[str, Any]] = None, system_prompt: Optional[str] = None) -> Generator[Dict[str, Any], None, None]:
+        """Generate streaming response from Ollama using chat endpoint."""
+        url = f"{self.base_url}/api/chat"
+        
+        # Build messages array
+        messages = []
+        if system_prompt:
+            messages.append({
+                "role": "system",
+                "content": system_prompt
+            })
+        messages.append({
+            "role": "user",
+            "content": prompt
+        })
         
         payload = {
             "model": self.model_name,
-            "prompt": prompt,
+            "messages": messages,
             "stream": True,
             "options": options or {}
         }
@@ -50,6 +62,9 @@ class OllamaService:
                 for line in response.iter_lines():
                     if line:
                         chunk = json.loads(line)
+                        # The chat endpoint returns message.content instead of response
+                        if 'message' in chunk and 'content' in chunk['message']:
+                            chunk['response'] = chunk['message']['content']
                         yield chunk
                         
         except requests.exceptions.RequestException as e:

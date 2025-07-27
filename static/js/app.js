@@ -1,6 +1,6 @@
 // Main application entry point
 
-import { getSessionId, setSessionId, getShowPrompts, setShowPrompts } from './utils/storage.js';
+import { getShowPrompts, setShowPrompts } from './utils/storage.js';
 import { checkHealth, clearConversation, getTokenCount } from './modules/api.js';
 import { StatusManager } from './modules/status.js';
 import { TokenManager } from './modules/tokens.js';
@@ -23,8 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
         tokenBarFill: document.getElementById('token-bar-fill')
     };
 
-    // Session management
-    let sessionId = getSessionId();
     
     // Initialize managers
     const statusManager = new StatusManager(
@@ -79,6 +77,16 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const data = await checkHealth();
             statusManager.updateStatus(data);
+            
+            // Update page title and header with model name
+            if (data.current_model) {
+                const formattedName = statusManager.formatModelName(data.current_model);
+                document.title = `${formattedName} Chat Interface`;
+                const chatTitle = document.getElementById('chat-title');
+                if (chatTitle) {
+                    chatTitle.textContent = `${formattedName} Chat`;
+                }
+            }
         } catch (error) {
             statusManager.setError();
         }
@@ -99,12 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             await chatManager.streamResponse(
-                message, 
-                sessionId,
-                (newSessionId) => {
-                    sessionId = newSessionId;
-                    setSessionId(sessionId);
-                },
+                message,
                 (fullPrompt) => {
                     promptManager.displayPrompt(fullPrompt);
                 }
@@ -121,21 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function handleClearConversation() {
-        if (!sessionId) return;
-        
-        if (confirm('Clear conversation history?')) {
-            try {
-                const response = await clearConversation(sessionId);
-                
-                if (response.ok) {
-                    chatManager.clearOutput();
-                    elements.userInput.focus();
-                    updateTokenCount();
-                }
-            } catch (error) {
-                console.error('Failed to clear conversation:', error);
-            }
-        }
+        // Clear the output area
+        chatManager.clearOutput();
+        elements.userInput.focus();
+        updateTokenCount();
     }
 
     function handleTogglePrompt() {
@@ -145,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function updateTokenCount() {
         try {
-            const data = await getTokenCount(sessionId, elements.userInput.value);
+            const data = await getTokenCount(elements.userInput.value);
             tokenManager.updateTokenDisplay(data);
         } catch (error) {
             console.error('Failed to update token count:', error);

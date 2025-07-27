@@ -5,6 +5,7 @@ export class StatusManager {
         this.statusDot = statusDot;
         this.statusText = statusText;
         this.tokenLimit = tokenLimit;
+        this.modelName = null;
     }
 
     updateStatus(data) {
@@ -23,10 +24,29 @@ export class StatusManager {
         if (data.context_limit) {
             this.tokenLimit.textContent = data.context_limit;
         }
+        
+        // Store model name if available
+        if (data.current_model) {
+            this.modelName = data.current_model;
+        }
     }
 
     setError() {
         this.statusDot.className = 'status-dot disconnected';
         this.statusText.textContent = 'Connection error';
+    }
+    
+    getModelName() {
+        return this.modelName;
+    }
+    
+    formatModelName(modelName) {
+        if (!modelName) return 'LLM';
+        
+        // Extract the base model name (before the colon)
+        const baseName = modelName.split(':')[0];
+        
+        // Capitalize first letter
+        return baseName.charAt(0).toUpperCase() + baseName.slice(1);
     }
 }

@@ -5,15 +5,14 @@ export async function checkHealth() {
     return await response.json();
 }
 
-export async function sendChatMessage(message, sessionId) {
+export async function sendChatMessage(message) {
     const response = await fetch('/api/chat/stream', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-            message: message,
-            session_id: sessionId 
+            message: message
         })
     });
     return response;
@@ -30,14 +29,13 @@ export async function clearConversation(sessionId) {
     return response;
 }
 
-export async function getTokenCount(sessionId, message) {
+export async function getTokenCount(message) {
     const response = await fetch('/api/chat/tokens', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            session_id: sessionId || '',
             message: message || ''
         })
     });
