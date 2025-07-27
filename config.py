@@ -15,9 +15,9 @@ class Config:
     TESTING = False
     
     # Model performance settings (optimized for RTX 4080)
-    MAX_TOKENS = int(os.environ.get('MAX_TOKENS', 8192))  # Increased to allow longer responses
+    MAX_TOKENS = int(os.environ.get('MAX_TOKENS', 2048))  # Optimized for 4K context window
     TEMPERATURE = float(os.environ.get('TEMPERATURE', 0.7))
-    NUM_CTX = int(os.environ.get('NUM_CTX', 8192))  # 8K context - faster performance
+    NUM_CTX = int(os.environ.get('NUM_CTX', 4096))  # 4K context - maximum speed
     
     # System prompts
     SYSTEM_PROMPT = os.environ.get('SYSTEM_PROMPT', 'You are a helpful AI assistant. Provide clear, accurate, and well-structured responses.')
