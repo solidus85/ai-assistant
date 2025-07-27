@@ -1,77 +1,160 @@
 # Project Status and Context for Claude
 
 ## Project Overview
-Building a Flask web app that interfaces with Ollama to run Mixtral locally with GPU acceleration. User prioritizes **accuracy over speed**.
+Building a Flask web app that interfaces with Ollama to run LLMs locally with GPU acceleration. Currently using Phi-3 Mini for fast responses, with option to switch to Mixtral for higher accuracy.
 
 ## Current Status
-- ✅ Flask app built with streaming responses and conversation history
-- ✅ Token counter implemented showing context usage
-- ✅ GPU detected: NVIDIA RTX 4080 (16GB VRAM)
-- ✅ System has 62GB RAM (can expand to 110GB)
-- ⏸️ **PAUSED**: User is moving WSL from C: to D: drive for space
+- ✅ Flask app refactored into modular structure
+- ✅ Streaming responses with conversation history
+- ✅ Token counter with 32K context window
+- ✅ GPU acceleration working (RTX 4080, 16GB VRAM)
+- ✅ Prompt display feature to show full context
+- ✅ Bug fixes for token counter and prompt display
+- ✅ WSL successfully moved from C: to D: drive
 
 ## Hardware Capabilities
 - **GPU**: RTX 4080 with 16GB VRAM
 - **RAM**: 62GB available (110GB possible)
 - **CUDA**: 12.9 support with Flash Attention
-- **Optimal Model**: Mixtral Q5_K_M (30GB, 99% accuracy)
+- **Current Model**: Phi-3 Mini (3.8B, ~1s response time)
+- **Alternative**: Mixtral Q5_K_M (46.7B, ~57s response time, 99% accuracy)
 
-## Next Steps After WSL Move
+## Project Structure
+```
+llm/
+├── app/                    # Main application package
+│   ├── __init__.py        # App factory
+│   ├── routes.py          # Main routes (index page)
+│   ├── api/               # API blueprints
+│   │   ├── health.py      # Health check endpoints
+│   │   ├── chat.py        # Chat streaming endpoints
+│   │   └── conversation.py # Conversation management
+│   ├── services/          # Business logic
+│   │   ├── ollama_service.py      # Ollama API client
+│   │   └── conversation_service.py # Conversation history
+│   ├── models/            # Data models (future use)
+│   └── utils/             # Utilities
+│       ├── extensions.py  # Service singletons
+│       └── token_counter.py # Token counting
+├── static/                # CSS, JS files
+├── templates/             # HTML templates
+├── config.py             # Configuration classes
+├── run.py                # Application entry point
+└── requirements.txt      # Dependencies
+```
 
-1. **Install Ollama on Linux** (if not already done):
+## Key Features
+1. **Modular Architecture**: Clean separation of concerns with services, blueprints, and utilities
+2. **Streaming Chat**: Real-time token streaming with conversation history
+3. **Token Management**: Visual token counter with color-coded usage (32K context)
+4. **GPU Optimization**: Configured for RTX 4080 with Flash Attention
+5. **Prompt Display**: Toggle to show full prompts sent to model
+6. **Model Flexibility**: Easy switching between speed (Phi-3) and accuracy (Mixtral)
+
+## Configuration
+- **Current Model**: `MODEL_NAME = "phi3:mini"` (in config.py)
+- **Context Window**: `NUM_CTX = 32768` (32K tokens, can go up to 128K)
+- **Conversation History**: Limited to 10 exchanges
+- **Token Counter**: Updates in real-time with color coding
+
+## Available Models
+1. **phi3:mini** (Current)
+   - Size: 3.8B parameters
+   - Speed: ~1 second responses
+   - VRAM: 2-3GB
+   - Context: Up to 128K tokens
+
+2. **mixtral-accurate:latest**
+   - Size: 46.7B parameters (Q5_K_M)
+   - Speed: ~57 seconds responses
+   - VRAM: 15-16GB
+   - Context: Up to 32K tokens
+   - Accuracy: 99% retention
+
+3. **mixtral:latest**
+   - Size: 46.7B parameters (Q4_0)
+   - Speed: ~20-30 seconds
+   - VRAM: 13-15GB
+   - Context: Up to 32K tokens
+
+## Running the Application
+
+1. **Ensure Ollama is running**:
    ```bash
-   ./setup_linux.sh
+   ./start_ollama.sh
    ```
 
-2. **Set up high-accuracy Mixtral Q5_K_M**:
+2. **Start the Flask app**:
    ```bash
-   ./setup_high_accuracy.sh
-   source ollama_accuracy.env
-   ./setup_q5_k_m.sh
+   source venv/bin/activate
+   python run.py
    ```
 
-3. **Start app with GPU optimization**:
-   ```bash
-   ./start_app_gpu.sh
-   ```
+3. **Access the app**:
+   - Open http://localhost:5000
+   - Green status = Connected
+   - Token counter shows usage/limit
+   - "Show Prompt" button reveals full context
 
-## Key Files Created
-- `app.py` - Flask backend with Ollama integration
-- `templates/index.html` - Frontend with token counter
-- `config.py` - Configuration with GPU settings
-- `setup_high_accuracy.sh` - Sets up Q5_K_M model
-- `start_app_gpu.sh` - Starts app with GPU settings
-- `ollama_accuracy.env` - Environment for high accuracy
+## API Endpoints
+- `GET /api/health` - Check Ollama connection and model status
+- `POST /api/chat/stream` - Stream chat responses
+- `POST /api/chat/tokens` - Get token count for session
+- `POST /api/conversation/clear` - Clear conversation history
+- `GET /api/conversation/history` - Get conversation history
 
-## Model Configuration
-- **Current**: MODEL_NAME = "mixtral-accurate" (in app.py)
-- **Type**: Mixtral Q5_K_M (5-bit quantization)
-- **Context**: 8192 tokens (can do 32K but slower)
-- **GPU Split**: 65% GPU, 35% CPU
+## Recent Updates
+1. **Modular Refactoring**: App split into services, blueprints, and utilities
+2. **Token Limit Increase**: From 8K to 32K (configurable up to 128K)
+3. **Prompt Display Feature**: Shows full context sent to model
+4. **Bug Fixes**: 
+   - Token counter now updates properly
+   - Show Prompt button works correctly
+   - Fixed API endpoint paths
 
-## Important Notes
-- User wants **accuracy over speed**
-- Q5_K_M chosen as best accuracy that fits GPU
-- Ollama will use 48GB RAM + 14-15GB VRAM
-- Token counter uses tiktoken (approximation)
-- Conversation history limited to 10 exchanges
+## Debugging Tools
+- `./debug_app.py` - Test Ollama connectivity
+- `./test_speed.py` - Compare model response times
+- `./test_structure.py` - Verify modular structure
+- `./test_bug_fixes.py` - Test token counter and prompt display
+- `./check_model_limits.py` - Test context window limits
 
-## Commands to Test After Setup
+## Environment Variables
+- `NUM_CTX` - Set context window size (default: 32768)
+- `MODEL_NAME` - Override default model
+- `FLASK_ENV` - Set to 'development' for debug mode
+- `OLLAMA_BASE_URL` - Ollama API URL (default: http://localhost:11434)
+
+## Common Commands
 ```bash
-# Check if Ollama is running
+# Check Ollama status
 ollama list
 
-# Test the model
-ollama run mixtral-accurate "Hello, test"
+# Test model directly
+ollama run phi3:mini "Hello"
 
 # Monitor GPU usage
 nvidia-smi
 
-# Start the web app
-./start_app_gpu.sh
+# Run speed comparison
+python3 test_speed.py
+
+# Change context limit
+export NUM_CTX=65536  # For 64K context
 ```
 
 ## Troubleshooting
-- If "mixtral-accurate" not found, run `./setup_q5_k_m.sh` again
-- If GPU not detected, check `nvidia-smi` and WSL GPU support
-- If out of memory, reduce NUM_CTX in config.py
+- **Red status indicator**: Check if Ollama is running (`./start_ollama.sh`)
+- **Token counter shows 0/0**: Refresh page, check browser console
+- **Slow responses**: Switch to phi3:mini for speed
+- **Out of memory**: Reduce NUM_CTX or switch to smaller model
+- **Model not found**: Run `ollama pull phi3:mini`
+
+## Next Steps
+- Add database for persistent conversation storage
+- Implement user authentication
+- Add more model options (gemma, tinyllama)
+- Create model switching UI
+- Add conversation export feature
+- Implement rate limiting
+- Add OpenAI-compatible API endpoint
