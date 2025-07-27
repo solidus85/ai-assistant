@@ -85,15 +85,15 @@
                 const response = await fetch('/api/health');
                 const data = await response.json();
                 
-                if (data.ollama_connected && data.mixtral_available) {
+                if (data.status === 'connected' && data.model_available) {
                     statusDot.className = 'status-dot connected';
-                    statusText.textContent = 'Connected to Mixtral';
-                } else if (data.ollama_connected) {
+                    statusText.textContent = 'Connected';
+                } else if (data.status === 'connected') {
                     statusDot.className = 'status-dot warning';
-                    statusText.textContent = 'Ollama connected, but Mixtral not found';
+                    statusText.textContent = 'Model not found';
                 } else {
                     statusDot.className = 'status-dot disconnected';
-                    statusText.textContent = 'Ollama not connected';
+                    statusText.textContent = 'Disconnected';
                 }
                 
                 // Update token limit if available
