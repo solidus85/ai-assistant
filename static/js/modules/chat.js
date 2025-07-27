@@ -115,7 +115,21 @@ export class ChatManager {
                     streamingSpan.innerHTML += '<span class="response-stopped"> [Response stopped by user]</span>';
                 }
                 console.log('Response generation stopped by user');
+            } else if (error.name === 'TimeoutError') {
+                // Timeout error
+                const streamingSpan = document.getElementById('streaming-response');
+                if (streamingSpan) {
+                    streamingSpan.innerHTML += '<span class="response-stopped"> [Response timed out after 5 minutes]</span>';
+                }
+                this.displayError(error.message);
+            } else if (error.name === 'TypeError' && error.message.includes('network')) {
+                // Network error - possibly from long response
+                this.displayError('Network error during response. The response may have been too long.');
+            } else if (error.message && error.message.includes('Extension context')) {
+                // Browser extension error - ignore
+                console.debug('Browser extension error during streaming (ignored)');
             } else {
+                // Re-throw other errors
                 throw error;
             }
         } finally {

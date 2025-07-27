@@ -11,6 +11,10 @@ import { TabManager } from './modules/tabs.js';
 import { SummarizeManager } from './modules/summarize.js';
 import { SummarizeSystemPromptManager } from './modules/summarize-system-prompt.js';
 import { Timer } from './modules/timer.js';
+import { setupGlobalErrorHandlers } from './utils/error-handler.js';
+
+// Setup global error handlers
+setupGlobalErrorHandlers();
 
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {

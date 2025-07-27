@@ -110,3 +110,14 @@ For your use case, I recommend:
 2. Use the "balanced" speed profile
 3. If you need faster responses for specific tasks, temporarily switch to "fast" mode
 4. For maximum quality when speed doesn't matter, use "quality" or "max" mode
+
+### 9. **Handling Long Responses**
+
+For responses that take over 4 minutes:
+- Use the **Stop button** to interrupt if needed
+- The app has a 5-minute timeout to prevent hanging
+- Browser extension errors during long responses are automatically ignored
+- Consider reducing MAX_TOKENS if responses are consistently too long:
+  ```bash
+  export MAX_TOKENS=2048  # Limit response length
+  ```
