@@ -35,10 +35,10 @@ def summarize_stream():
 
 def generate_summarization_stream(user_input: str):
     """Generate streaming summarization response using Phi3:mini."""
-    # Create a temporary Ollama service instance for Phi3:mini
+    # Create a temporary Ollama service instance for summarization model
     ollama = get_ollama_service()
     original_model = ollama.model_name
-    ollama.model_name = 'phi3:mini'  # Force Phi3:mini for summarization
+    ollama.model_name = current_app.config.get('SUMMARIZE_MODEL_NAME', 'phi3:mini')  # Use configured summarization model
     
     try:
         # Start timing
@@ -83,7 +83,7 @@ def generate_summarization_stream(user_input: str):
                 yield json.dumps({
                     'done': True,
                     'total_time': total_time,
-                    'model': 'phi3:mini',
+                    'model': current_app.config.get('SUMMARIZE_MODEL_NAME', 'phi3:mini'),
                     'eval_count': chunk.get('eval_count', 0),
                     'eval_duration': chunk.get('eval_duration', 0)
                 }) + '\n'

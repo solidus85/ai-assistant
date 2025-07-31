@@ -5,7 +5,7 @@ export async function checkHealth() {
     return await response.json();
 }
 
-export async function sendChatMessage(message, abortSignal) {
+export async function sendChatMessage(message, abortSignal, model = null) {
     // Create a timeout promise for very long responses (5 minutes)
     const timeoutMs = 300000; // 5 minutes
     const timeoutPromise = new Promise((_, reject) => {
@@ -14,6 +14,12 @@ export async function sendChatMessage(message, abortSignal) {
         }, timeoutMs);
     });
     
+    // Get selected model if not provided
+    if (!model) {
+        const modelSelect = document.getElementById('model-select');
+        model = modelSelect ? modelSelect.value : null;
+    }
+    
     // Race between fetch and timeout
     const fetchPromise = fetch('/api/chat/stream', {
         method: 'POST',
@@ -21,7 +27,8 @@ export async function sendChatMessage(message, abortSignal) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-            message: message
+            message: message,
+            model: model
         }),
         signal: abortSignal
     });

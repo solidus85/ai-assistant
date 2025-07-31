@@ -8,6 +8,7 @@ class Config:
     OLLAMA_BASE_URL = os.environ.get('OLLAMA_BASE_URL', 'http://localhost:11434')
     DEFAULT_MODEL = os.environ.get('DEFAULT_MODEL', 'mixtral')
     MODEL_NAME = os.environ.get('MODEL_NAME', 'llama3.1:8b')
+    SUMMARIZE_MODEL_NAME = os.environ.get('SUMMARIZE_MODEL_NAME', 'llama3.1:8b')
     MAX_CONVERSATION_HISTORY = 10
     
     # Flask settings

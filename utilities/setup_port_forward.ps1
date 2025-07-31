@@ -2,7 +2,7 @@
 # Run this in Windows PowerShell as Administrator
 
 param(
-    [int]$Port = 8080
+    [int]$Port = 5000
 )
 
 # Get WSL2 IP address

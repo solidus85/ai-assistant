@@ -40,7 +40,7 @@ def get_lan_ip():
         return None
 
 def main():
-    port = int(os.environ.get('PORT', 8080))
+    port = int(os.environ.get('PORT', 5000))
     
     print("🌐 LLM Web App Access URLs")
     print("=" * 60)

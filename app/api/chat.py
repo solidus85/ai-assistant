@@ -16,6 +16,7 @@ def chat_stream():
     data = request.json
     user_input = data.get('message', '')
     session_id = data.get('session_id')
+    model_name = data.get('model')
     
     if not user_input:
         return Response(
@@ -24,14 +25,21 @@ def chat_stream():
         )
     
     return Response(
-        stream_with_context(generate_chat_stream(user_input, session_id)),
+        stream_with_context(generate_chat_stream(user_input, session_id, model_name)),
         mimetype='application/json'
     )
 
 
-def generate_chat_stream(user_input: str, session_id: str = None):
+def generate_chat_stream(user_input: str, session_id: str = None, model_name: str = None):
     """Generate streaming chat response."""
     ollama = get_ollama_service()
+    
+    # Save the original model name
+    original_model = ollama.model_name
+    
+    # Use specified model if provided, otherwise use default
+    if model_name:
+        ollama.model_name = model_name
     
     try:
         # Just use the user input directly, no conversation history
@@ -42,7 +50,7 @@ def generate_chat_stream(user_input: str, session_id: str = None):
         
         # Send the full prompt immediately if requested
         full_prompt = f"System: {system_prompt}\n\nUser: {context}" if system_prompt else context
-        yield json.dumps({'full_prompt': full_prompt}) + '\n'
+        yield json.dumps({'full_prompt': full_prompt, 'model': ollama.model_name}) + '\n'
         
         # Start timing
         start_time = time.time()
@@ -98,6 +106,10 @@ def generate_chat_stream(user_input: str, session_id: str = None):
             'error': f'An error occurred: {str(e)}',
             'done': True
         }) + '\n'
+    finally:
+        # Restore original model
+        if model_name:
+            ollama.model_name = original_model
 
 
 @bp.route('/chat/tokens', methods=['POST'])

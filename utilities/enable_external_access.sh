@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script to enable external access for WSL2 Flask app
 
-PORT=${1:-8080}
+PORT=${1:-5000}
 
 echo "🔧 Setting up port forwarding for WSL2..."
 echo "=================================="
