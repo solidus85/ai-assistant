@@ -1,7 +1,7 @@
 # Flask settings
 SECRET_KEY = 'dev-secret-key-change-in-production'
 HOST = '0.0.0.0'
-PORT = 8080
+PORT = 5000
 DEBUG = False
 TESTING = False
 
