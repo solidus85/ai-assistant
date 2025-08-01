@@ -7,8 +7,6 @@ import { TokenManager } from './modules/tokens.js';
 import { ChatManager } from './modules/chat.js';
 import { PromptManager } from './modules/prompt.js';
 import { TabManager } from './modules/tabs.js';
-import { SummarizeManager } from './modules/summarize.js';
-import { SummarizeSystemPromptManager } from './modules/summarize-system-prompt.js';
 import { ParseManager } from './modules/parse.js';
 import { Timer } from './modules/timer.js';
 import { setupGlobalErrorHandlers } from './utils/error-handler.js';
@@ -34,15 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
         consolePanel: document.getElementById('console-panel'),
         consoleOutput: document.getElementById('console-output'),
         clearConsoleButton: document.getElementById('clear-console'),
-        // Summarize tab elements
-        summarizeInput: document.getElementById('summarize-input'),
-        summarizeOutput: document.getElementById('summarize-output'),
-        summarizeButton: document.getElementById('summarize-button'),
-        clearSummarizeButton: document.getElementById('clear-summarize'),
-        summarizeTokenCount: document.getElementById('summarize-token-count'),
-        summarizeTokenLimit: document.getElementById('summarize-token-limit'),
-        summarizeSystemPrompt: document.getElementById('summarize-system-prompt'),
-        saveSummarizePromptButton: document.getElementById('save-summarize-prompt'),
         // Parse tab elements
         parseInput: document.getElementById('parse-input'),
         parseOutput: document.getElementById('parse-output'),
@@ -82,20 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const tabManager = new TabManager();
     
-    const summarizeManager = new SummarizeManager({
-        summarizeInput: elements.summarizeInput,
-        summarizeOutput: elements.summarizeOutput,
-        summarizeButton: elements.summarizeButton,
-        clearSummarizeButton: elements.clearSummarizeButton,
-        summarizeTokenCount: elements.summarizeTokenCount,
-        summarizeTokenLimit: elements.summarizeTokenLimit
-    });
-    
-    const summarizeSystemPromptManager = new SummarizeSystemPromptManager(
-        elements.summarizeSystemPrompt,
-        elements.saveSummarizePromptButton
-    );
-    
     const parseManager = new ParseManager({
         parseInput: elements.parseInput,
         parseOutput: elements.parseOutput,
@@ -111,13 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Setup tab navigation
     tabManager.setupEventListeners();
-    
-    // Setup summarization
-    summarizeManager.setupEventListeners();
-    
-    // Load and setup summarize system prompt
-    summarizeSystemPromptManager.loadSystemPrompt();
-    summarizeSystemPromptManager.setupEventListeners();
     
     // Setup parse functionality
     parseManager.setupEventListeners();

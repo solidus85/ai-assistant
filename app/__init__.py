@@ -16,12 +16,11 @@ def create_app():
     logging.basicConfig(level=getattr(logging, config.LOG_LEVEL))
     
     # Register blueprints
-    from app.api import health, chat, conversation, settings, summarize, parse
+    from app.api import health, chat, conversation, settings, parse
     app.register_blueprint(health.bp)
     app.register_blueprint(chat.bp)
     app.register_blueprint(conversation.bp)
     app.register_blueprint(settings.bp)
-    app.register_blueprint(summarize.bp)
     app.register_blueprint(parse.bp)
     
     # Register main routes
