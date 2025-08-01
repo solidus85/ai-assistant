@@ -1,6 +1,4 @@
-## Environment Context
-- You are in a folder containing a python program running on Ubuntu
-- You are on an Ubuntu VM
-- Do not run sudo commands, instead ask the human to run them
-- Do not run run.py without explicit permission
-- You should commit every change to the git repository
+- Commit changes to git every time changes are made.
+- Keep programming file line count below 300-400 lines.  Split into multiple files when necessary.
+- Avoid creating md files, simply communicate to me and I will tell you if I want your comments serialized.
+- All configurable settings or variables should be saved in config.py.
