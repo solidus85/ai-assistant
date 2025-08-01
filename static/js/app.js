@@ -134,15 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await checkHealth();
             statusManager.updateStatus(data);
             
-            // Update page title and header with model name
-            if (data.current_model) {
-                const formattedName = statusManager.formatModelName(data.current_model);
-                document.title = `${formattedName} Chat Interface`;
-                const chatTitle = document.getElementById('chat-title');
-                if (chatTitle) {
-                    chatTitle.textContent = `${formattedName} Chat`;
-                }
-            }
         } catch (error) {
             statusManager.setError();
         }
