@@ -36,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
         consolePanel: document.getElementById('console-panel'),
         consoleOutput: document.getElementById('console-output'),
         clearConsoleButton: document.getElementById('clear-console'),
-        modelSelect: document.getElementById('model-select'),
         // Summarize tab elements
         summarizeInput: document.getElementById('summarize-input'),
         summarizeOutput: document.getElementById('summarize-output'),
@@ -117,11 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
     summarizeSystemPromptManager.loadSystemPrompt();
     summarizeSystemPromptManager.setupEventListeners();
     
-    // Load saved model preference
-    const savedModel = localStorage.getItem('selectedModel');
-    if (savedModel && elements.modelSelect) {
-        elements.modelSelect.value = savedModel;
-    }
 
     // Check health and update tokens on load
     performHealthCheck();
@@ -145,16 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.sendButton.disabled = elements.userInput.value.trim() === '';
         updateTokenCount();
     });
-    
-    // Model selection change handler
-    if (elements.modelSelect) {
-        elements.modelSelect.addEventListener('change', (e) => {
-            const selectedModel = e.target.value;
-            localStorage.setItem('selectedModel', selectedModel);
-            // Optionally update the UI to show the selected model
-            console.log(`Model changed to: ${selectedModel}`);
-        });
-    }
 
     // Functions
     async function performHealthCheck() {
