@@ -9,6 +9,7 @@ import { PromptManager } from './modules/prompt.js';
 import { TabManager } from './modules/tabs.js';
 import { SummarizeManager } from './modules/summarize.js';
 import { SummarizeSystemPromptManager } from './modules/summarize-system-prompt.js';
+import { ParseManager } from './modules/parse.js';
 import { Timer } from './modules/timer.js';
 import { setupGlobalErrorHandlers } from './utils/error-handler.js';
 
@@ -42,6 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
         summarizeTokenLimit: document.getElementById('summarize-token-limit'),
         summarizeSystemPrompt: document.getElementById('summarize-system-prompt'),
         saveSummarizePromptButton: document.getElementById('save-summarize-prompt'),
+        // Parse tab elements
+        parseInput: document.getElementById('parse-input'),
+        parseOutput: document.getElementById('parse-output'),
+        parseButton: document.getElementById('parse-button'),
+        parseStopButton: document.getElementById('parse-stop-button'),
+        parseClearButton: document.getElementById('parse-clear-button'),
         // Progress indicator elements
         progressContainer: document.getElementById('progress-container'),
         timerDisplay: document.getElementById('timer-display')
@@ -89,6 +96,14 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.saveSummarizePromptButton
     );
     
+    const parseManager = new ParseManager({
+        parseInput: elements.parseInput,
+        parseOutput: elements.parseOutput,
+        parseButton: elements.parseButton,
+        parseStopButton: elements.parseStopButton,
+        parseClearButton: elements.parseClearButton
+    });
+    
     const timer = new Timer(elements.timerDisplay);
 
     // Initialize console state
@@ -104,6 +119,8 @@ document.addEventListener('DOMContentLoaded', () => {
     summarizeSystemPromptManager.loadSystemPrompt();
     summarizeSystemPromptManager.setupEventListeners();
     
+    // Setup parse functionality
+    parseManager.setupEventListeners();
 
     // Check health and update tokens on load
     performHealthCheck();

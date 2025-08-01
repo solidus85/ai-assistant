@@ -23,6 +23,7 @@ SUMMARIZE_SYSTEM_PROMPT = """
     Remove filler, repetition, and minor details. Keep it concise but clear. 
     Limit the output to 2–3 sentences if needed, but prioritize clarity and brevity.
 """
+PARSE_SYSTEM_PROMPT = 'You are a text parsing assistant. Extract and structure information from the provided text, identifying key entities, relationships, and important data points.'
 
 # Advanced model settings
 NUM_BATCH = 512  # Optimal batch size for RTX 4080
