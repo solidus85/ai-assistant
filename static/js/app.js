@@ -6,7 +6,6 @@ import { StatusManager } from './modules/status.js';
 import { TokenManager } from './modules/tokens.js';
 import { ChatManager } from './modules/chat.js';
 import { PromptManager } from './modules/prompt.js';
-import { SystemPromptManager } from './modules/system-prompt.js';
 import { TabManager } from './modules/tabs.js';
 import { SummarizeManager } from './modules/summarize.js';
 import { SummarizeSystemPromptManager } from './modules/summarize-system-prompt.js';
@@ -31,8 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
         tokenCount: document.getElementById('token-count'),
         tokenLimit: document.getElementById('token-limit'),
         tokenBarFill: document.getElementById('token-bar-fill'),
-        systemPrompt: document.getElementById('system-prompt'),
-        savePromptButton: document.getElementById('save-prompt'),
         consolePanel: document.getElementById('console-panel'),
         consoleOutput: document.getElementById('console-output'),
         clearConsoleButton: document.getElementById('clear-console'),
@@ -76,11 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.consolePanel
     );
     
-    const systemPromptManager = new SystemPromptManager(
-        elements.systemPrompt,
-        elements.savePromptButton
-    );
-    
     const tabManager = new TabManager();
     
     const summarizeManager = new SummarizeManager({
@@ -101,10 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize console state
     promptManager.setShowConsole(getShowPrompts());
-    
-    // Load and setup system prompt
-    systemPromptManager.loadSystemPrompt();
-    systemPromptManager.setupEventListeners();
     
     // Setup tab navigation
     tabManager.setupEventListeners();
