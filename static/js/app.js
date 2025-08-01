@@ -1,11 +1,9 @@
 // Main application entry point
 
-import { getShowPrompts, setShowPrompts } from './utils/storage.js';
 import { checkHealth, clearConversation, getTokenCount } from './modules/api.js';
 import { StatusManager } from './modules/status.js';
 import { TokenManager } from './modules/tokens.js';
 import { ChatManager } from './modules/chat.js';
-import { PromptManager } from './modules/prompt.js';
 import { TabManager } from './modules/tabs.js';
 import { ParseManager } from './modules/parse.js';
 import { Timer } from './modules/timer.js';
@@ -22,16 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
         sendButton: document.getElementById('send-button'),
         stopButton: document.getElementById('stop-button'),
         clearButton: document.getElementById('clear-button'),
-        togglePromptButton: document.getElementById('toggle-prompt'),
         outputArea: document.getElementById('output'),
         statusDot: document.getElementById('status-dot'),
         statusText: document.getElementById('status-text'),
         tokenCount: document.getElementById('token-count'),
         tokenLimit: document.getElementById('token-limit'),
         tokenBarFill: document.getElementById('token-bar-fill'),
-        consolePanel: document.getElementById('console-panel'),
-        consoleOutput: document.getElementById('console-output'),
-        clearConsoleButton: document.getElementById('clear-console'),
         // Parse tab elements
         parseInput: document.getElementById('parse-input'),
         parseOutput: document.getElementById('parse-output'),
@@ -63,12 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.sendButton
     );
     
-    const promptManager = new PromptManager(
-        elements.consoleOutput,
-        elements.togglePromptButton,
-        elements.consolePanel
-    );
-    
     const tabManager = new TabManager();
     
     const parseManager = new ParseManager({
@@ -81,9 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const timer = new Timer(elements.timerDisplay);
 
-    // Initialize console state
-    promptManager.setShowConsole(getShowPrompts());
-    
     // Setup tab navigation
     tabManager.setupEventListeners();
     
@@ -98,8 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.sendButton.addEventListener('click', sendMessage);
     elements.stopButton.addEventListener('click', handleStopResponse);
     elements.clearButton.addEventListener('click', handleClearConversation);
-    elements.togglePromptButton.addEventListener('click', handleTogglePrompt);
-    elements.clearConsoleButton.addEventListener('click', handleClearConsole);
     
     elements.userInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -149,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await chatManager.streamResponse(
                 message,
                 (fullPrompt) => {
-                    promptManager.displayPrompt(fullPrompt);
+                    // Prompt display removed
                 },
                 timer.getElapsedTime()
             );
@@ -197,14 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function handleTogglePrompt() {
-        const showConsole = promptManager.toggle();
-        setShowPrompts(showConsole);
-    }
-    
-    function handleClearConsole() {
-        promptManager.clearConsole();
-    }
 
     async function updateTokenCount() {
         try {
