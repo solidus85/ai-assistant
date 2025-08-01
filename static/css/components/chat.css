@@ -17,6 +17,7 @@
     overflow-y: auto;
     margin-bottom: 20px;
     border: 1px solid var(--border-color);
+    min-height: 200px;
 }
 
 .welcome-message {
