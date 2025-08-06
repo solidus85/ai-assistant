@@ -1,6 +1,6 @@
 """Integration tests for the Flask application."""
 import pytest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 
 class TestApp:
@@ -25,8 +25,10 @@ class TestApp:
     
     def test_api_prefix(self, client):
         """Test that API routes use /api prefix."""
-        with patch('src.api.health.ollama_service') as mock_service:
+        with patch('src.api.health.get_ollama_service') as mock_get_service:
+            mock_service = MagicMock()
             mock_service.check_health.return_value = {'status': 'connected'}
+            mock_get_service.return_value = mock_service
             
             # API routes should work with /api prefix
             response = client.get('/api/health')
@@ -44,8 +46,10 @@ class TestApp:
     
     def test_json_content_type(self, client):
         """Test that API returns JSON content type."""
-        with patch('src.api.health.ollama_service') as mock_service:
+        with patch('src.api.health.get_ollama_service') as mock_get_service:
+            mock_service = MagicMock()
             mock_service.check_health.return_value = {'status': 'connected'}
+            mock_get_service.return_value = mock_service
             
             response = client.get('/api/health')
             assert response.content_type == 'application/json'

@@ -63,12 +63,12 @@ class TestChatAPI:
             
             assert response.status_code == 200
     
-    def test_chat_stream_with_system_prompt(self, client):
+    def test_chat_stream_with_system_prompt(self, app, client):
         """Test chat stream with system prompt from config."""
-        with patch('src.api.chat.get_ollama_service') as mock_get_service, \
-             patch('src.api.chat.current_app') as mock_app:
-            
-            mock_app.config.get.return_value = 'Be concise'
+        # Set the system prompt in app config
+        app.config['SYSTEM_PROMPT'] = 'Be concise'
+        
+        with patch('src.api.chat.get_ollama_service') as mock_get_service:
             mock_service = MagicMock()
             mock_service.model_name = 'gemma3:12b-it-qat'
             mock_service.generate_stream.return_value = [

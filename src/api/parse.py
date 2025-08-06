@@ -58,18 +58,15 @@ Text to parse:
             "gpu_layers": current_app.config.get('GPU_LAYERS', 99)
         }
         
-        # Use the chat endpoint with system prompt
-        messages = []
-        if system_prompt:
-            messages.append({"role": "system", "content": system_prompt})
-        messages.append({"role": "user", "content": parse_prompt})
+        # Use generate_stream with the combined prompt
+        full_prompt = parse_prompt
         
-        # Stream the response
-        for chunk in ollama.chat_stream(messages, options):
-            if 'message' in chunk and 'content' in chunk['message']:
+        # Stream the response with system prompt
+        for chunk in ollama.generate_stream(full_prompt, options, system_prompt):
+            if 'response' in chunk:
                 yield json.dumps({
-                    'content': chunk['message']['content'],
-                    'done': False
+                    'content': chunk['response'],
+                    'done': chunk.get('done', False)
                 }) + '\n'
         
         # Send done signal
