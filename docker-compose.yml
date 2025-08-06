@@ -1,26 +1,22 @@
 version: '3.8'
 
+# This compose file uses local wheels for completely offline builds
+# First run: ./download-wheels.sh to populate the wheels directory
+
 services:
   web:
     build: 
       context: .
-      dockerfile: Dockerfile.cached  # Uses caching-enabled Dockerfile
-      # Enable BuildKit for better caching
-      cache_from:
-        - ai-assistant:cache
-      args:
-        - BUILDKIT_INLINE_CACHE=1
-    image: ai-assistant:latest
-    container_name: ai-assistant
+      dockerfile: Dockerfile.offline  # Uses only local wheels
+    image: ai-assistant:offline
+    container_name: ai-assistant-offline
     ports:
       - "5000:5000"
     environment:
       - HOST=0.0.0.0
       - PORT=5000
       - DEBUG=False
-      # Use host.docker.internal to connect to Ollama running on Windows host
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
-      # Database paths inside container
       - DATABASE_PATH=/app/data/work_assistant.db
       - CHROMA_PERSIST_DIRECTORY=/app/data/chroma_db
       - ANONYMIZED_TELEMETRY=False
@@ -31,21 +27,6 @@ services:
       - ./data:/app/data
       # Mount secret key directory
       - ./.secret_key:/app/.secret_key
-      # Cache directories for faster rebuilds
-      - pip-cache:/home/appuser/.cache/pip
-      - apt-cache:/var/cache/apt
-      # For development: mount source code for hot-reload (optional)
-      # - ./src:/app/src
-      # - ./config.py:/app/config.py
-      # - ./run.py:/app/run.py
     restart: unless-stopped
     extra_hosts:
-      # Ensures host.docker.internal works on Linux hosts too
       - "host.docker.internal:host-gateway"
-
-# Define named volumes for caching
-volumes:
-  pip-cache:
-    driver: local
-  apt-cache:
-    driver: local
