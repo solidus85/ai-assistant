@@ -27,3 +27,4 @@ ollama_models/
 .env
 .claude
 .secret_key
+.venv_win
