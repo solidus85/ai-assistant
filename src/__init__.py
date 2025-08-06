@@ -30,13 +30,26 @@ def create_app():
     
     # Initialize vector store (optional - only if chromadb is available)
     try:
-        from src.services.vector_store import VectorStore
-        app.vector_store = VectorStore(config.CHROMA_PERSIST_DIRECTORY)
+        # Try the optimized Ollama-based vector store first
+        from src.services.vector_store_ollama import VectorStoreOllama
+        app.vector_store = VectorStoreOllama(
+            config.CHROMA_PERSIST_DIRECTORY,
+            config.OLLAMA_BASE_URL,
+            "nomic-embed-text"  # Ollama's embedding model
+        )
         app.vector_store_available = True
-    except ImportError as e:
-        logging.warning(f"Vector store not available: {e}")
-        app.vector_store = None
-        app.vector_store_available = False
+        logging.info("Using Ollama-based vector store (fast)")
+    except ImportError:
+        try:
+            # Fall back to sentence-transformers version
+            from src.services.vector_store import VectorStore
+            app.vector_store = VectorStore(config.CHROMA_PERSIST_DIRECTORY)
+            app.vector_store_available = True
+            logging.info("Using sentence-transformers vector store (slower)")
+        except ImportError as e:
+            logging.warning(f"Vector store not available: {e}")
+            app.vector_store = None
+            app.vector_store_available = False
     
     # Register blueprints
     from src.api import health, chat, conversation, settings, parse
