@@ -61,3 +61,17 @@ GPU_LAYERS = int(os.getenv('GPU_LAYERS', 99))  # Load all layers to GPU
 # Logging
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
 LOG_FILE = os.getenv('LOG_FILE', None)
+
+# Database settings
+SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///work_assistant.db')
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+# Vector database settings
+CHROMA_PERSIST_DIRECTORY = os.getenv('CHROMA_PERSIST_DIRECTORY', './chroma_db')
+
+# Keyword extraction model (smaller model for parsing)
+EXTRACTION_MODEL = os.getenv('EXTRACTION_MODEL', 'phi3')
+
+# Work assistant settings
+MAX_SEARCH_RESULTS = int(os.getenv('MAX_SEARCH_RESULTS', 10))
+DELIVERABLE_WARNING_DAYS = int(os.getenv('DELIVERABLE_WARNING_DAYS', 7))
