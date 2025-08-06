@@ -27,9 +27,6 @@ pip download --dest "$WHEELS_DIR" \
     pytest \
     pytest-cov \
     pytest-flask \
-    ipython \
-    black \
-    flake8 \
     2>/dev/null || true
 
 echo ""

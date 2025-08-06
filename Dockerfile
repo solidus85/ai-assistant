@@ -24,10 +24,10 @@ RUN useradd -m -u 1000 appuser
 # Copy wheels directory - THIS IS YOUR PACKAGE CACHE
 COPY --chown=appuser:appuser wheels /tmp/wheels
 
-# Create a local pip repository index
+# List available wheels (for debugging if needed)
 RUN cd /tmp/wheels && \
-    python3 -m pip install --user pip-tools && \
-    ls -1 *.whl > index.txt
+    ls -1 *.whl > index.txt && \
+    echo "Found $(wc -l < index.txt) wheel files"
 
 # Copy requirements file
 COPY --chown=appuser:appuser requirements.txt .
