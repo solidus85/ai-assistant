@@ -39,3 +39,4 @@ chroma_db/
 *.sqlite
 *.sqlite3
 data
+htmlcov
