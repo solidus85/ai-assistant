@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """Application entry point."""
+import os
+import sys
+
+# Disable ChromaDB telemetry before any imports
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
+
 import config
 from src import create_app
 import logging
-import sys
 
 # Suppress the development server warning
 cli = sys.modules['flask.cli']

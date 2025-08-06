@@ -4,6 +4,9 @@ import config
 import logging
 import os
 
+# Disable ChromaDB telemetry to avoid PostHog errors
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
+
 
 def ensure_data_directories(app):
     """Ensure all required data directories exist."""

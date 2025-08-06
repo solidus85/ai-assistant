@@ -1,4 +1,8 @@
 """Vector store service for semantic search using ChromaDB."""
+import os
+# Disable ChromaDB telemetry
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
+
 import chromadb
 from chromadb.config import Settings
 import logging

@@ -1,4 +1,8 @@
 """Vector store service using Ollama for embeddings instead of sentence-transformers."""
+import os
+# Disable ChromaDB telemetry
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
+
 import chromadb
 from chromadb.config import Settings
 import logging
