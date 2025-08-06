@@ -130,25 +130,26 @@ def process_email():
         db.session.add(email)
         db.session.flush()
         
-        # Add to vector store for semantic search
-        vector_store = current_app.vector_store
-        vector_id = vector_store.add_email(
-            email.id,
-            f"{subject}\n{email_content}",
-            {
-                'subject': subject,
-                'sender': sender,
-                'project_id': project.id if project else None,
-                'project_name': project.name if project else '',
-                'company': extracted_info.get('company', ''),
-                'keywords': extracted_info.get('keywords', []),
-                'people': extracted_info.get('people', []),
-                'importance': extracted_info.get('importance', 'normal'),
-                'received_date': received_date.isoformat()
-            }
-        )
-        
-        email.vector_id = vector_id
+        # Add to vector store for semantic search (if available)
+        if current_app.vector_store:
+            vector_id = current_app.vector_store.add_email(
+                email.id,
+                f"{subject}\n{email_content}",
+                {
+                    'subject': subject,
+                    'sender': sender,
+                    'project_id': project.id if project else None,
+                    'project_name': project.name if project else '',
+                    'company': extracted_info.get('company', ''),
+                    'keywords': extracted_info.get('keywords', []),
+                    'people': extracted_info.get('people', []),
+                    'importance': extracted_info.get('importance', 'normal'),
+                    'received_date': received_date.isoformat()
+                }
+            )
+            email.vector_id = vector_id
+        else:
+            email.vector_id = None
         
         # Process deliverables if any
         for deliverable_info in extracted_info.get('deliverables', []):
@@ -217,21 +218,22 @@ def create_status_update():
         db.session.add(status_update)
         db.session.flush()
         
-        # Add to vector store
-        vector_store = current_app.vector_store
-        vector_id = vector_store.add_status_update(
-            status_update.id,
-            content,
-            {
-                'project_id': project_id,
-                'project_name': project.name,
-                'update_type': status_update.update_type,
-                'keywords': extracted_info.get('keywords', []),
-                'created_at': status_update.created_at.isoformat()
-            }
-        )
-        
-        status_update.vector_id = vector_id
+        # Add to vector store (if available)
+        if current_app.vector_store:
+            vector_id = current_app.vector_store.add_status_update(
+                status_update.id,
+                content,
+                {
+                    'project_id': project_id,
+                    'project_name': project.name,
+                    'update_type': status_update.update_type,
+                    'keywords': extracted_info.get('keywords', []),
+                    'created_at': status_update.created_at.isoformat()
+                }
+            )
+            status_update.vector_id = vector_id
+        else:
+            status_update.vector_id = None
         
         # Process any deliverables mentioned
         for deliverable_title in extracted_info.get('deliverables_mentioned', []):
@@ -310,24 +312,23 @@ def deliverables():
             db.session.add(deliverable)
             db.session.flush()
             
-            # Add to vector store
+            # Add to vector store (if available)
             project = Project.query.get(deliverable.project_id)
-            vector_store = current_app.vector_store
-            
-            content = f"{deliverable.title}\n{deliverable.description or ''}"
-            vector_id = vector_store.add_deliverable(
-                deliverable.id,
-                content,
-                {
-                    'project_id': deliverable.project_id,
-                    'project_name': project.name if project else '',
-                    'title': deliverable.title,
-                    'status': deliverable.status,
-                    'priority': deliverable.priority,
-                    'due_date': deliverable.due_date.isoformat() if deliverable.due_date else '',
-                    'assigned_to': deliverable.assigned_to or ''
-                }
-            )
+            if current_app.vector_store:
+                content = f"{deliverable.title}\n{deliverable.description or ''}"
+                vector_id = current_app.vector_store.add_deliverable(
+                    deliverable.id,
+                    content,
+                    {
+                        'project_id': deliverable.project_id,
+                        'project_name': project.name if project else '',
+                        'title': deliverable.title,
+                        'status': deliverable.status,
+                        'priority': deliverable.priority,
+                        'due_date': deliverable.due_date.isoformat() if deliverable.due_date else '',
+                        'assigned_to': deliverable.assigned_to or ''
+                    }
+                )
             
             db.session.commit()
             
@@ -375,7 +376,6 @@ Return ONLY JSON."""
         query_intent = json.loads(response_text)
         
         results = {}
-        vector_store = current_app.vector_store
         
         # Handle different query types
         if 'deliverable' in query.lower() or query_intent.get('query_type') == 'deliverables':
@@ -397,24 +397,26 @@ Return ONLY JSON."""
                 deliverables = deliverables.order_by(Deliverable.due_date.asc()).all()
                 results['deliverables'] = [d.to_dict() for d in deliverables]
             
-            # Also do semantic search
-            search_results = vector_store.search_deliverables(query, n_results=5)
-            results['related_deliverables'] = search_results
+            # Also do semantic search (if available)
+            if current_app.vector_store:
+                search_results = current_app.vector_store.search_deliverables(query, n_results=5)
+                results['related_deliverables'] = search_results
         
-        # Search emails if relevant
-        if 'email' in query.lower() or query_intent.get('query_type') == 'emails':
-            search_results = vector_store.search_emails(query, n_results=5)
-            results['emails'] = search_results
-        
-        # Search status updates
-        if 'status' in query.lower() or 'update' in query.lower() or query_intent.get('query_type') == 'status':
-            search_results = vector_store.search_status_updates(query, n_results=5)
-            results['status_updates'] = search_results
-        
-        # If no specific type, search everything
-        if not results:
-            all_results = vector_store.search_all(query, n_results=5)
-            results = all_results
+        # Search emails if relevant (if vector store available)
+        if current_app.vector_store:
+            if 'email' in query.lower() or query_intent.get('query_type') == 'emails':
+                search_results = current_app.vector_store.search_emails(query, n_results=5)
+                results['emails'] = search_results
+            
+            # Search status updates
+            if 'status' in query.lower() or 'update' in query.lower() or query_intent.get('query_type') == 'status':
+                search_results = current_app.vector_store.search_status_updates(query, n_results=5)
+                results['status_updates'] = search_results
+            
+            # If no specific type, search everything
+            if not results and current_app.vector_store:
+                all_results = current_app.vector_store.search_all(query, n_results=5)
+                results = all_results
         
         # Generate a natural language response
         context = json.dumps(results, indent=2)[:3000]

@@ -28,9 +28,15 @@ def create_app():
     with app.app_context():
         db.create_all()
     
-    # Initialize vector store
-    from src.services.vector_store import VectorStore
-    app.vector_store = VectorStore(config.CHROMA_PERSIST_DIRECTORY)
+    # Initialize vector store (optional - only if chromadb is available)
+    try:
+        from src.services.vector_store import VectorStore
+        app.vector_store = VectorStore(config.CHROMA_PERSIST_DIRECTORY)
+        app.vector_store_available = True
+    except ImportError as e:
+        logging.warning(f"Vector store not available: {e}")
+        app.vector_store = None
+        app.vector_store_available = False
     
     # Register blueprints
     from src.api import health, chat, conversation, settings, parse
