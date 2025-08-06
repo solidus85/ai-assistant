@@ -50,6 +50,13 @@ def create_app():
     # Create database tables
     with app.app_context():
         db.create_all()
+        
+        # Apply SQLite optimizations if using SQLite
+        if 'sqlite' in app.config.get('SQLALCHEMY_DATABASE_URI', ''):
+            from src.utils.db_optimizer import optimize_sqlite, create_fts_tables
+            optimize_sqlite(app)
+            # Optionally enable Full-Text Search
+            # create_fts_tables(db)
     
     # Initialize vector store (optional - only if chromadb is available)
     try:
