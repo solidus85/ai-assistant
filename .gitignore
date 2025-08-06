@@ -28,3 +28,4 @@ ollama_models/
 .claude
 .secret_key
 .venv_win
+jenkins_console.txt
