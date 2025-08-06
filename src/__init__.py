@@ -6,8 +6,8 @@ import logging
 def create_app():
     """Application factory pattern."""
     app = Flask(__name__, 
-                template_folder='../templates',
-                static_folder='../static')
+                template_folder='templates',
+                static_folder='static')
     
     # Load configuration
     app.config.from_object(config)
