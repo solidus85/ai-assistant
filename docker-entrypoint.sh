@@ -2,9 +2,17 @@
 set -e
 
 # Generate secret key if it doesn't exist
-if [ ! -f ".secret_key" ]; then
-    echo "Generating new secret key..."
-    python -c "import secrets; print(secrets.token_hex(32))" > .secret_key
+SECRET_KEY_FILE="${SECRET_KEY_PATH:-.secret_key}"
+
+# If SECRET_KEY_PATH is a directory, append filename
+if [ -d "$SECRET_KEY_FILE" ]; then
+    SECRET_KEY_FILE="$SECRET_KEY_FILE/secret_key.txt"
+fi
+
+if [ ! -f "$SECRET_KEY_FILE" ]; then
+    echo "Generating new secret key at $SECRET_KEY_FILE..."
+    mkdir -p "$(dirname "$SECRET_KEY_FILE")"
+    python -c "import secrets; print(secrets.token_hex(32))" > "$SECRET_KEY_FILE"
     echo "Secret key generated successfully"
 fi
 

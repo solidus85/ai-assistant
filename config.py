@@ -8,7 +8,11 @@ def read_secret_key():
     """Read secret key from file or return default."""
     secret_key_path = os.getenv('SECRET_KEY_PATH', '.secret_key')
     
-    if os.path.exists(secret_key_path):
+    # If path is a directory, look for secret_key.txt inside it
+    if os.path.isdir(secret_key_path):
+        secret_key_path = os.path.join(secret_key_path, 'secret_key.txt')
+    
+    if os.path.exists(secret_key_path) and os.path.isfile(secret_key_path):
         try:
             with open(secret_key_path, 'r') as f:
                 key = f.read().strip()

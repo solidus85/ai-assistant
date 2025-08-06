@@ -15,8 +15,8 @@ services:
     env_file:
       - .env
     volumes:
-      # Mount secret key as read-only
-      - ./.secret_key:/app/.secret_key:ro
+      # Mount secret key directory
+      - ./.secret_key:/app/.secret_key
       # For development: mount source code for hot-reload (optional)
       # - ./src:/app/src
       # - ./config.py:/app/config.py
