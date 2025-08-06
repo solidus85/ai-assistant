@@ -26,3 +26,4 @@ ollama_models/
 *.log
 .env
 .claude
+.secret_key
