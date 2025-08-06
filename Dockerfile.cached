@@ -1,0 +1,65 @@
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Set environment variables - REMOVE the no-cache settings!
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    ANONYMIZED_TELEMETRY=False \
+    # Tell pip WHERE to cache packages
+    PIP_CACHE_DIR=/home/appuser/.cache/pip
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user FIRST (before pip install)
+RUN useradd -m -u 1000 appuser && \
+    mkdir -p /home/appuser/.cache/pip && \
+    chown -R appuser:appuser /home/appuser
+
+# Switch to non-root user for pip install
+USER appuser
+
+# Copy requirements as appuser
+COPY --chown=appuser:appuser requirements.txt .
+
+# Install Python dependencies WITHOUT --no-cache-dir flag
+# This allows pip to use the cache directory
+RUN pip install --user "numpy<2.0" && \
+    pip install --user -r requirements.txt
+
+# Copy application code
+COPY --chown=appuser:appuser . .
+
+# Install curl for health checks (need to be root)
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy and set permissions for entrypoint script
+COPY --chown=appuser:appuser docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Ensure app directory ownership
+RUN chown -R appuser:appuser /app
+
+# Switch back to non-root user
+USER appuser
+
+# Add user's pip install location to PATH
+ENV PATH="/home/appuser/.local/bin:${PATH}"
+
+# Expose port
+EXPOSE 5000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:5000/api/health || exit 1
+
+# Run the application
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

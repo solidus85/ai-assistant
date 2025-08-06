@@ -4,7 +4,7 @@ services:
   web:
     build: 
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.cached  # Uses caching-enabled Dockerfile
       # Enable BuildKit for better caching
       cache_from:
         - ai-assistant:cache
