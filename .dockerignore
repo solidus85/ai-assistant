@@ -27,21 +27,35 @@ Thumbs.db
 .gitignore
 
 # Docker
-Dockerfile
-docker-compose.yml
+Dockerfile*
+docker-compose*.yml
 .dockerignore
+docker-build.sh
+docker-entrypoint.sh
 
 # Project specific
 ollama_models/
 *.log
 .env.example
+.env.docker
 setup_notes.md
 docs/
+data/
+*.db
+*.sqlite
+docker_logs/
+jenkins/
+Jenkinsfile
+run_tests.sh
 
 # Testing
 .pytest_cache/
 .coverage
+coverage.xml
 htmlcov/
+tests/
+pytest.ini
+pyproject.toml
 
 # Documentation
 README.md

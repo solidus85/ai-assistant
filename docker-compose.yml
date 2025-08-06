@@ -1,6 +1,16 @@
+version: '3.8'
+
 services:
   web:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      # Enable BuildKit for better caching
+      cache_from:
+        - ai-assistant:cache
+      args:
+        - BUILDKIT_INLINE_CACHE=1
+    image: ai-assistant:latest
     container_name: ai-assistant
     ports:
       - "5000:5000"
@@ -13,6 +23,7 @@ services:
       # Database paths inside container
       - DATABASE_PATH=/app/data/work_assistant.db
       - CHROMA_PERSIST_DIRECTORY=/app/data/chroma_db
+      - ANONYMIZED_TELEMETRY=False
     env_file:
       - .env
     volumes:
@@ -20,6 +31,9 @@ services:
       - ./data:/app/data
       # Mount secret key directory
       - ./.secret_key:/app/.secret_key
+      # Cache directories for faster rebuilds
+      - pip-cache:/home/appuser/.cache/pip
+      - apt-cache:/var/cache/apt
       # For development: mount source code for hot-reload (optional)
       # - ./src:/app/src
       # - ./config.py:/app/config.py
@@ -28,3 +42,10 @@ services:
     extra_hosts:
       # Ensures host.docker.internal works on Linux hosts too
       - "host.docker.internal:host-gateway"
+
+# Define named volumes for caching
+volumes:
+  pip-cache:
+    driver: local
+  apt-cache:
+    driver: local
