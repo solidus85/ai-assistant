@@ -135,10 +135,11 @@ class TestWorkAssistantAPI:
             }
             
             email_data = {
+                'from': 'sender@test.com',
+                'to': ['recipient@test.com'],
+                'cc': ['cc@test.com'],
                 'subject': 'Test Email',
-                'sender': 'sender@test.com',
-                'recipients': ['recipient@test.com'],
-                'content': 'This is a test email about the project.',
+                'body': 'This is a test email about the project.',
                 'received_date': datetime.now().isoformat()
             }
             

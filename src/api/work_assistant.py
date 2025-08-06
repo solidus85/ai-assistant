@@ -79,15 +79,47 @@ def project_detail(project_id):
 
 @bp.route('/emails/process', methods=['POST'])
 def process_email():
-    """Process an email and extract information."""
+    """Process an email and extract information.
+    
+    Accepts JSON with:
+    - from: sender email address (string)
+    - to: recipient email addresses (string or list)
+    - cc: CC email addresses (string or list, optional)
+    - subject: email subject (string)
+    - body: email body content (string)
+    - received_date: when email was received (optional, ISO format string)
+    """
     try:
         data = request.json
-        email_content = data.get('content', '')
+        
+        # Map standard email fields to internal names
+        sender = data.get('from', '')
+        
+        # Handle 'to' field - can be string or list
+        to_field = data.get('to', [])
+        if isinstance(to_field, str):
+            recipients = [to_field] if to_field else []
+        else:
+            recipients = to_field
+            
+        # Handle 'cc' field - can be string or list
+        cc_field = data.get('cc', [])
+        if isinstance(cc_field, str):
+            cc = [cc_field] if cc_field else []
+        else:
+            cc = cc_field if cc_field else []
+        
         subject = data.get('subject', '')
-        sender = data.get('sender', '')
-        recipients = data.get('recipients', [])
-        cc = data.get('cc', [])
+        email_content = data.get('body', '')
         received_date = data.get('received_date')
+        
+        # Validate required fields
+        if not sender:
+            return jsonify({'error': 'Missing required field: from'}), 400
+        if not recipients:
+            return jsonify({'error': 'Missing required field: to'}), 400
+        if not subject and not email_content:
+            return jsonify({'error': 'Missing both subject and body'}), 400
         
         if received_date:
             received_date = date_parser.parse(received_date)

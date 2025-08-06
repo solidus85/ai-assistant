@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Processing Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .secondary {
+            background: #6c757d;
+        }
+        .secondary:hover {
+            background: #5a6268;
+        }
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            display: none;
+        }
+        #result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        #result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .extracted-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 4px;
+        }
+        .info-item {
+            margin: 10px 0;
+            display: flex;
+            align-items: flex-start;
+        }
+        .info-label {
+            font-weight: bold;
+            width: 120px;
+            flex-shrink: 0;
+        }
+        .info-value {
+            flex: 1;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,.1);
+            border-radius: 50%;
+            border-top-color: #007bff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 Email Processing API Test</h1>
+        
+        <form id="emailForm">
+            <div class="form-group">
+                <label for="from">From: *</label>
+                <input type="email" id="from" name="from" required 
+                       placeholder="sender@example.com" 
+                       value="john.doe@techcorp.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="to">To: * (comma-separated for multiple)</label>
+                <input type="text" id="to" name="to" required 
+                       placeholder="recipient@example.com, another@example.com"
+                       value="team@techcorp.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="cc">CC: (comma-separated for multiple)</label>
+                <input type="text" id="cc" name="cc" 
+                       placeholder="cc@example.com"
+                       value="manager@techcorp.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="subject">Subject:</label>
+                <input type="text" id="subject" name="subject" 
+                       placeholder="Email subject"
+                       value="Project Update: Q4 Deliverables">
+            </div>
+            
+            <div class="form-group">
+                <label for="body">Body:</label>
+                <textarea id="body" name="body" 
+                          placeholder="Email body content...">Hi Team,
+
+I wanted to provide an update on our Q4 deliverables for the Analytics Dashboard project.
+
+We've completed the following:
+- User authentication module
+- Data visualization components
+- API integration with the backend
+
+Still pending:
+- Performance optimization (due by Friday)
+- Security audit (scheduled for next week)
+- Documentation updates
+
+Please review the attached designs and let me know if you have any feedback. We need to finalize everything by the end of the month.
+
+The project is currently at 75% completion. Alice and Bob have been doing great work on the frontend, while Charlie is handling the backend integration.
+
+Best regards,
+John</textarea>
+            </div>
+            
+            <button type="submit" id="submitBtn">
+                Process Email
+            </button>
+            <button type="button" class="secondary" onclick="clearForm()">
+                Clear Form
+            </button>
+            <button type="button" class="secondary" onclick="loadSampleEmail()">
+                Load Sample
+            </button>
+        </form>
+        
+        <div id="result"></div>
+    </div>
+    
+    <script>
+        document.getElementById('emailForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const resultDiv = document.getElementById('result');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span> Processing...';
+            
+            // Get form data
+            const formData = new FormData(e.target);
+            
+            // Parse comma-separated values for to and cc
+            const toValue = formData.get('to');
+            const ccValue = formData.get('cc');
+            
+            const emailData = {
+                from: formData.get('from'),
+                to: toValue.includes(',') 
+                    ? toValue.split(',').map(e => e.trim()).filter(e => e)
+                    : toValue.trim(),
+                cc: ccValue 
+                    ? (ccValue.includes(',') 
+                        ? ccValue.split(',').map(e => e.trim()).filter(e => e)
+                        : ccValue.trim())
+                    : [],
+                subject: formData.get('subject'),
+                body: formData.get('body')
+            };
+            
+            try {
+                const response = await fetch('/api/work/emails/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(emailData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('success', data);
+                } else {
+                    showResult('error', data);
+                }
+            } catch (error) {
+                showResult('error', { error: error.message });
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Process Email';
+            }
+        });
+        
+        function showResult(type, data) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = type;
+            
+            if (type === 'success') {
+                const info = data.extracted_info || {};
+                resultDiv.innerHTML = `
+                    <h3>✅ Email Processed Successfully</h3>
+                    <p><strong>Email ID:</strong> ${data.email_id}</p>
+                    ${data.project ? `<p><strong>Project:</strong> ${data.project.name} (ID: ${data.project.id})</p>` : ''}
+                    
+                    <div class="extracted-info">
+                        <h4>Extracted Information:</h4>
+                        <div class="info-item">
+                            <span class="info-label">Project Name:</span>
+                            <span class="info-value">${info.project_name || 'Not identified'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Company:</span>
+                            <span class="info-value">${info.company || 'Not identified'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Importance:</span>
+                            <span class="info-value">${info.importance || 'medium'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">People:</span>
+                            <span class="info-value">${info.people && info.people.length > 0 ? info.people.join(', ') : 'None identified'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Keywords:</span>
+                            <span class="info-value">${info.keywords && info.keywords.length > 0 ? info.keywords.join(', ') : 'None'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Action Items:</span>
+                            <span class="info-value">${info.action_items && info.action_items.length > 0 ? info.action_items.join('; ') : 'None'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Deliverables:</span>
+                            <span class="info-value">${formatDeliverables(info.deliverables)}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Summary:</span>
+                            <span class="info-value">${info.summary || 'No summary'}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <h3>❌ Error Processing Email</h3>
+                    <p>${data.error || 'An unknown error occurred'}</p>
+                `;
+            }
+        }
+        
+        function formatDeliverables(deliverables) {
+            if (!deliverables || deliverables.length === 0) {
+                return 'None identified';
+            }
+            return deliverables.map(d => {
+                if (typeof d === 'string') {
+                    return d;
+                }
+                return `${d.title}${d.due_date ? ` (due: ${new Date(d.due_date).toLocaleDateString()})` : ''}`;
+            }).join('; ');
+        }
+        
+        function clearForm() {
+            document.getElementById('emailForm').reset();
+            document.getElementById('result').style.display = 'none';
+        }
+        
+        function loadSampleEmail() {
+            document.getElementById('from').value = 'sarah.johnson@innovate.io';
+            document.getElementById('to').value = 'dev-team@innovate.io, qa-team@innovate.io';
+            document.getElementById('cc').value = 'cto@innovate.io, pm@innovate.io';
+            document.getElementById('subject').value = 'URGENT: Mobile App Launch - Final Testing Required';
+            document.getElementById('body').value = `Team,
+
+This is a critical update regarding the Mobile App Redesign project.
+
+We're approaching the launch deadline (December 15th) and need immediate action on the following:
+
+COMPLETED:
+✓ UI/UX redesign implementation
+✓ Backend API updates
+✓ Push notification system
+
+ACTION REQUIRED:
+1. Complete final QA testing by EOD tomorrow (Alice, Bob)
+2. Fix the payment gateway integration bug (Charlie)
+3. Update app store descriptions and screenshots (Marketing team)
+4. Prepare launch announcement for social media
+
+DELIVERABLES:
+- QA Test Report - Due: Tomorrow 5 PM
+- Bug Fix Deployment - Due: Friday
+- App Store Submission - Due: Monday
+- Launch Materials - Due: December 14th
+
+The project is currently 85% complete. We're on track but need everyone's focused effort.
+
+David from Security has flagged two minor vulnerabilities that need patching before launch.
+Emma has completed the performance optimization, reducing load times by 40%.
+
+Please confirm receipt and your estimated completion times.
+
+Best,
+Sarah
+
+--
+Sarah Johnson
+Product Manager | Innovate.io`;
+        }
+    </script>
+</body>
+</html>

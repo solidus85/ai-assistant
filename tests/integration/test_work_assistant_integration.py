@@ -34,10 +34,10 @@ class TestWorkAssistantIntegration:
                     }
                     
                     email_response = client.post('/api/work/emails/process', json={
+                        'from': 'manager@company.com',
+                        'to': ['team@company.com'],
                         'subject': 'Urgent: Project Deadline',
-                        'sender': 'manager@company.com',
-                        'recipients': ['team@company.com'],
-                        'content': 'Please complete the final report by end of week.',
+                        'body': 'Please complete the final report by end of week.',
                         'received_date': datetime.now().isoformat()
                     })
                     
@@ -214,10 +214,10 @@ class TestWorkAssistantIntegration:
                         }
                         
                         client.post('/api/work/emails/process', json={
+                            'from': f'sender{i}@test.com',
+                            'to': ['team@test.com'],
                             'subject': f'Email {i+1}',
-                            'sender': f'sender{i}@test.com',
-                            'recipients': ['team@test.com'],
-                            'content': f'Email mentioning {", ".join(people)}',
+                            'body': f'Email mentioning {", ".join(people)}',
                             'received_date': datetime.now().isoformat()
                         })
                     
