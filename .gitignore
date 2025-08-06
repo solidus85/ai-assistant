@@ -46,3 +46,5 @@ htmlcov
 docker_logs
 .coverage
 coverage.xml
+
+.pytest_cache
