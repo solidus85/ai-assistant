@@ -42,3 +42,5 @@ data
 htmlcov
 
 docker_logs
+.coverage
+coverage.xml
