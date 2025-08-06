@@ -3,126 +3,463 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Assistant</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <title>Work Assistant - Email Processor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #444;
+            font-size: 14px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+            line-height: 1.5;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8e8;
+        }
+
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+
+        #result.success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+
+        #result.error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+
+        .result-header {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .extracted-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .info-item {
+            display: flex;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            width: 140px;
+            color: #555;
+        }
+
+        .info-value {
+            flex: 1;
+            color: #333;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-label {
+            padding: 12px 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-block;
+            transition: background 0.3s;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .file-label:hover {
+            background: #e8e8e8;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1 id="chat-title">AI Assistant</h1>
-            <div class="header-info">
-                <div id="status" class="status">
-                    <span class="status-dot" id="status-dot"></span>
-                    <span id="status-text">Checking connection...</span>
-                </div>
-                <div id="token-counter" class="token-counter">
-                    <span id="token-count">0</span> / <span id="token-limit">2048</span> tokens
-                    <div class="token-bar">
-                        <div id="token-bar-fill" class="token-bar-fill"></div>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <h1>📧 Work Assistant</h1>
+        <p class="subtitle">Process emails to extract projects, people, and action items</p>
         
-        <main>
-            <div class="main-layout">
-                <div class="main-content">
-                    <div class="tab-navigation">
-                        <button class="tab-button active" data-tab="chat">Chat</button>
-                        <button class="tab-button" data-tab="parse">Parse</button>
-                        <button class="tab-button" data-tab="work">Work Assistant</button>
-                    </div>
-                    
-                    <div class="tab-content" id="chat-tab">
-                        <div class="chat-container">
-                            <div id="output" class="output-area">
-                                <p class="welcome-message">Welcome! Ask me anything...</p>
-                            </div>
-                            
-                            <div class="input-container">
-                                <textarea 
-                                    id="user-input" 
-                                    class="user-input" 
-                                    placeholder="Type your question here..."
-                                    rows="3"
-                                ></textarea>
-                                <div class="button-group">
-                                    <button id="send-button" class="send-button" disabled>Send</button>
-                                    <button id="stop-button" class="stop-button" style="display: none;" title="Stop generating">Stop</button>
-                                    <button id="clear-button" class="clear-button" title="Clear output">Clear Output</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="tab-content hidden" id="parse-tab">
-                        <div class="chat-container">
-                            <div id="parse-output" class="output-area">
-                                <p class="welcome-message">Welcome to Parse! Paste your text to parse...</p>
-                            </div>
-                            
-                            <div class="input-container">
-                                <textarea 
-                                    id="parse-input" 
-                                    class="user-input" 
-                                    placeholder="Paste text to parse here..."
-                                    rows="3"
-                                ></textarea>
-                                <div class="button-group">
-                                    <button id="parse-button" class="send-button" disabled>Parse</button>
-                                    <button id="parse-stop-button" class="stop-button" style="display: none;" title="Stop parsing">Stop</button>
-                                    <button id="parse-clear-button" class="clear-button" title="Clear output">Clear Output</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="tab-content hidden" id="work-tab">
-                        <div class="work-assistant-container">
-                            <div class="work-sidebar">
-                                <h3>Projects</h3>
-                                <div id="projects-list" class="projects-list"></div>
-                                <button id="add-project-btn" class="add-button">+ New Project</button>
-                                
-                                <h3>Upcoming Deliverables</h3>
-                                <div id="deliverables-list" class="deliverables-list"></div>
-                            </div>
-                            
-                            <div class="work-main">
-                                <div class="work-actions">
-                                    <button id="process-email-btn" class="action-button">Process Email</button>
-                                    <button id="add-status-btn" class="action-button">Add Status Update</button>
-                                    <button id="add-deliverable-btn" class="action-button">Add Deliverable</button>
-                                </div>
-                                
-                                <div class="work-query">
-                                    <input type="text" id="work-query-input" placeholder="Ask about your work: e.g., 'What deliverables are due soon for Project X?'" />
-                                    <button id="work-query-btn" class="send-button">Ask</button>
-                                </div>
-                                
-                                <div id="work-output" class="work-output">
-                                    <p class="welcome-message">Welcome to Work Assistant! Process emails, track status updates, and manage deliverables.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <form id="emailForm">
+            <div class="form-group">
+                <label for="from">From *</label>
+                <input type="email" id="from" name="from" required placeholder="sender@example.com">
             </div>
-        </main>
-    </div>
+            
+            <div class="form-group">
+                <label for="to">To * <span class="hint">(comma-separated for multiple)</span></label>
+                <input type="text" id="to" name="to" required placeholder="recipient@example.com, team@example.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="cc">CC <span class="hint">(optional, comma-separated)</span></label>
+                <input type="text" id="cc" name="cc" placeholder="manager@example.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="subject">Subject</label>
+                <input type="text" id="subject" name="subject" placeholder="Email subject">
+            </div>
+            
+            <div class="form-group">
+                <label for="body">Body <span class="hint">(plain text)</span></label>
+                <textarea id="body" name="body" placeholder="Paste or type email content here..."></textarea>
+            </div>
 
-    <!-- Progress indicator -->
-    <div class="progress-container" id="progress-container">
-        <div class="circular-progress">
-            <svg viewBox="0 0 40 40">
-                <circle class="progress-background" cx="20" cy="20" r="18"></circle>
-                <circle class="progress-bar" cx="20" cy="20" r="18"></circle>
-            </svg>
-        </div>
-        <div class="timer-display" id="timer-display">0.0s</div>
-        <span class="timer-label">elapsed</span>
+            <div class="form-group">
+                <div class="file-input-wrapper">
+                    <input type="file" id="fileInput" accept=".txt,.text,text/plain">
+                    <label for="fileInput" class="file-label">📁 Load from .txt file</label>
+                </div>
+                <span class="hint">Upload a plain text email file</span>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" id="submitBtn" class="btn-primary">
+                    Process Email
+                </button>
+                <button type="button" class="btn-secondary" onclick="clearForm()">
+                    Clear
+                </button>
+                <button type="button" class="btn-secondary" onclick="loadSample()">
+                    Load Sample
+                </button>
+            </div>
+        </form>
+        
+        <div id="result"></div>
     </div>
+    
+    <script>
+        document.getElementById('emailForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const resultDiv = document.getElementById('result');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span> Processing...';
+            
+            // Get form data
+            const formData = new FormData(e.target);
+            
+            // Parse comma-separated values
+            const toValue = formData.get('to');
+            const ccValue = formData.get('cc');
+            
+            const emailData = {
+                from: formData.get('from'),
+                to: toValue.includes(',') 
+                    ? toValue.split(',').map(e => e.trim()).filter(e => e)
+                    : toValue.trim(),
+                cc: ccValue 
+                    ? (ccValue.includes(',') 
+                        ? ccValue.split(',').map(e => e.trim()).filter(e => e)
+                        : ccValue.trim())
+                    : [],
+                subject: formData.get('subject'),
+                body: formData.get('body')
+            };
+            
+            try {
+                const response = await fetch('/api/work/emails/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(emailData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('success', data);
+                } else {
+                    showResult('error', data);
+                }
+            } catch (error) {
+                showResult('error', { error: error.message });
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Process Email';
+            }
+        });
 
-    <script type="module" src="{{ url_for('static', filename='js/app.js') }}"></script>
+        document.getElementById('fileInput').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const lines = content.split('\n');
+                
+                // Parse email headers
+                let from = '', to = '', cc = '', subject = '', bodyStartIndex = 0;
+                
+                for (let i = 0; i < Math.min(lines.length, 20); i++) {
+                    const line = lines[i];
+                    if (line.startsWith('From: ')) {
+                        from = line.substring(6).trim();
+                    } else if (line.startsWith('To: ')) {
+                        to = line.substring(4).trim();
+                    } else if (line.startsWith('Cc: ') || line.startsWith('CC: ')) {
+                        cc = line.substring(4).trim();
+                    } else if (line.startsWith('Subject: ')) {
+                        subject = line.substring(9).trim();
+                    } else if (line.trim() === '' && i > 0) {
+                        bodyStartIndex = i + 1;
+                        break;
+                    }
+                }
+                
+                // Set form values
+                if (from) document.getElementById('from').value = from;
+                if (to) document.getElementById('to').value = to;
+                if (cc) document.getElementById('cc').value = cc;
+                if (subject) document.getElementById('subject').value = subject;
+                
+                const body = bodyStartIndex > 0 
+                    ? lines.slice(bodyStartIndex).join('\n')
+                    : content;
+                document.getElementById('body').value = body.trim();
+            };
+            
+            reader.readAsText(file);
+            event.target.value = ''; // Reset file input
+        });
+        
+        function showResult(type, data) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = type;
+            
+            if (type === 'success') {
+                const info = data.extracted_info || {};
+                resultDiv.innerHTML = `
+                    <div class="result-header">✅ Email Processed Successfully</div>
+                    <p><strong>Email ID:</strong> ${data.email_id}</p>
+                    ${data.project ? `<p><strong>Project:</strong> ${data.project.name}</p>` : ''}
+                    
+                    <div class="extracted-info">
+                        <h4>Extracted Information:</h4>
+                        <div class="info-item">
+                            <span class="info-label">Project:</span>
+                            <span class="info-value">${info.project_name || 'Not identified'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Company:</span>
+                            <span class="info-value">${info.company || 'Not identified'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Importance:</span>
+                            <span class="info-value">${info.importance || 'medium'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">People:</span>
+                            <span class="info-value">${info.people && info.people.length > 0 ? info.people.join(', ') : 'None'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Keywords:</span>
+                            <span class="info-value">${info.keywords && info.keywords.length > 0 ? info.keywords.join(', ') : 'None'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Action Items:</span>
+                            <span class="info-value">${info.action_items && info.action_items.length > 0 ? info.action_items.join('; ') : 'None'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Summary:</span>
+                            <span class="info-value">${info.summary || 'No summary'}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="result-header">❌ Error</div>
+                    <p>${data.error || 'An unknown error occurred'}</p>
+                `;
+            }
+        }
+        
+        function clearForm() {
+            document.getElementById('emailForm').reset();
+            document.getElementById('result').style.display = 'none';
+        }
+        
+        function loadSample() {
+            document.getElementById('from').value = 'project.manager@company.com';
+            document.getElementById('to').value = 'dev-team@company.com, qa-team@company.com';
+            document.getElementById('cc').value = 'cto@company.com';
+            document.getElementById('subject').value = 'Q1 Platform Migration - Status Update';
+            document.getElementById('body').value = `Team,
+
+I wanted to provide an update on our cloud platform migration project.
+
+Current Status:
+- Database migration: 100% complete (David's team)
+- API gateway setup: 80% complete (Alice)
+- Load balancer configuration: In progress (Bob, due Friday)
+- Security audit phase 2: Scheduled for next week
+
+Blockers:
+- Legacy system integration taking longer than expected
+- Need additional AWS credits for testing
+
+Action Items:
+1. All team leads update Jira by EOD today
+2. Security team to confirm audit schedule
+3. DevOps to provision staging environment by Monday
+
+Deliverables this week:
+- Technical documentation (due March 15)
+- Performance benchmarks (due March 20)
+
+The project is currently at 65% completion. We're on track for the April 1 go-live date.
+
+Please review and let me know if you have any concerns.
+
+Best regards,
+Sarah`;
+        }
+    </script>
 </body>
 </html>
