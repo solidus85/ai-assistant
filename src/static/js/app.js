@@ -8,6 +8,7 @@ import { TabManager } from './modules/tabs.js';
 import { ParseManager } from './modules/parse.js';
 import { Timer } from './modules/timer.js';
 import { setupGlobalErrorHandlers } from './utils/error-handler.js';
+import { workAssistant } from './modules/work-assistant.js';
 
 // Setup global error handlers
 setupGlobalErrorHandlers();

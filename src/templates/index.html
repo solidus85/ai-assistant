@@ -30,6 +30,7 @@
                     <div class="tab-navigation">
                         <button class="tab-button active" data-tab="chat">Chat</button>
                         <button class="tab-button" data-tab="parse">Parse</button>
+                        <button class="tab-button" data-tab="work">Work Assistant</button>
                     </div>
                     
                     <div class="tab-content" id="chat-tab">
@@ -71,6 +72,36 @@
                                     <button id="parse-button" class="send-button" disabled>Parse</button>
                                     <button id="parse-stop-button" class="stop-button" style="display: none;" title="Stop parsing">Stop</button>
                                     <button id="parse-clear-button" class="clear-button" title="Clear output">Clear Output</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content hidden" id="work-tab">
+                        <div class="work-assistant-container">
+                            <div class="work-sidebar">
+                                <h3>Projects</h3>
+                                <div id="projects-list" class="projects-list"></div>
+                                <button id="add-project-btn" class="add-button">+ New Project</button>
+                                
+                                <h3>Upcoming Deliverables</h3>
+                                <div id="deliverables-list" class="deliverables-list"></div>
+                            </div>
+                            
+                            <div class="work-main">
+                                <div class="work-actions">
+                                    <button id="process-email-btn" class="action-button">Process Email</button>
+                                    <button id="add-status-btn" class="action-button">Add Status Update</button>
+                                    <button id="add-deliverable-btn" class="action-button">Add Deliverable</button>
+                                </div>
+                                
+                                <div class="work-query">
+                                    <input type="text" id="work-query-input" placeholder="Ask about your work: e.g., 'What deliverables are due soon for Project X?'" />
+                                    <button id="work-query-btn" class="send-button">Ask</button>
+                                </div>
+                                
+                                <div id="work-output" class="work-output">
+                                    <p class="welcome-message">Welcome to Work Assistant! Process emails, track status updates, and manage deliverables.</p>
                                 </div>
                             </div>
                         </div>
