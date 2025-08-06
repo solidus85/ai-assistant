@@ -10,39 +10,18 @@ services:
       - HOST=0.0.0.0
       - PORT=5000
       - DEBUG=False
+      # Use host.docker.internal to connect to Ollama running on Windows host
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
     env_file:
       - .env
     volumes:
-      - ./src:/app/src:ro
+      # Mount secret key as read-only
       - ./.secret_key:/app/.secret_key:ro
-    networks:
-      - ai-network
+      # For development: mount source code for hot-reload (optional)
+      # - ./src:/app/src
+      # - ./config.py:/app/config.py
+      # - ./run.py:/app/run.py
     restart: unless-stopped
-    depends_on:
-      - ollama
-
-  ollama:
-    image: ollama/ollama:latest
-    container_name: ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama-data:/root/.ollama
-    networks:
-      - ai-network
-    restart: unless-stopped
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
-
-volumes:
-  ollama-data:
-
-networks:
-  ai-network:
-    driver: bridge
+    extra_hosts:
+      # Ensures host.docker.internal works on Linux hosts too
+      - "host.docker.internal:host-gateway"

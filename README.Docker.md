@@ -2,18 +2,14 @@
 
 ## Prerequisites
 - Docker Desktop installed on Windows
-- NVIDIA GPU drivers (if using GPU acceleration)
+- Ollama running on your Windows host machine (with GPU access)
 
 ## Quick Start
 
-### Development Mode (using existing Ollama)
-If you already have Ollama running locally:
-```bash
-docker-compose -f docker-compose.dev.yml up --build
-```
+### 1. Ensure Ollama is running on Windows
+Make sure Ollama is running and accessible at `http://localhost:11434`
 
-### Full Stack (includes Ollama)
-To run both the app and Ollama in Docker:
+### 2. Build and run the Docker container
 ```bash
 docker-compose up --build
 ```
@@ -26,6 +22,8 @@ Copy `.env.example` to `.env` and modify as needed:
 cp .env.example .env
 ```
 
+The Docker container is configured to connect to Ollama running on your Windows host using `http://host.docker.internal:11434`.
+
 ### Secret Key
 The Docker container will automatically generate a secret key on first run if `.secret_key` doesn't exist.
 
@@ -36,7 +34,7 @@ The Docker container will automatically generate a secret key on first run if `.
 docker-compose build
 ```
 
-### Start services
+### Start the service
 ```bash
 docker-compose up -d
 ```
@@ -46,32 +44,55 @@ docker-compose up -d
 docker-compose logs -f
 ```
 
-### Stop services
+### Stop the service
 ```bash
 docker-compose down
 ```
 
-### Remove volumes (careful - removes Ollama models)
+### Rebuild after code changes
 ```bash
-docker-compose down -v
+docker-compose up --build
 ```
 
 ## Accessing the Application
 - Web UI: http://localhost:5000
-- Ollama API: http://localhost:11434 (if using full stack)
+- Ollama API (on host): http://localhost:11434
 
-## GPU Support
-The docker-compose.yml includes GPU support for Ollama. Make sure:
-1. NVIDIA Container Toolkit is installed
-2. Docker Desktop has WSL2 backend enabled
-3. GPU is available in WSL2
+## Development Mode
+To enable hot-reload during development, uncomment the volume mounts in `docker-compose.yml`:
+```yaml
+volumes:
+  - ./.secret_key:/app/.secret_key:ro
+  - ./src:/app/src              # Uncomment these lines
+  - ./config.py:/app/config.py  # for development
+  - ./run.py:/app/run.py        # hot-reload
+```
 
-## Development Tips
-- Use `docker-compose.dev.yml` for development with hot-reload
-- Volumes are mounted for live code updates in dev mode
-- Check container health: `docker-compose ps`
+Then restart the container:
+```bash
+docker-compose restart
+```
 
 ## Troubleshooting
-- If Ollama connection fails, ensure the `OLLAMA_BASE_URL` is correct
-- For Windows: use `http://host.docker.internal:11434` to connect to local Ollama
-- Check logs: `docker-compose logs web` or `docker-compose logs ollama`
+
+### Connection to Ollama fails
+- Ensure Ollama is running on Windows: `ollama list`
+- Check if Ollama is accessible: `curl http://localhost:11434/api/tags`
+- The container uses `host.docker.internal:11434` to reach Ollama on the Windows host
+
+### Port already in use
+If port 5000 is already in use, change it in `docker-compose.yml`:
+```yaml
+ports:
+  - "5001:5000"  # Change 5001 to any available port
+```
+
+### View container health
+```bash
+docker-compose ps
+```
+
+### Check logs
+```bash
+docker-compose logs web
+```
