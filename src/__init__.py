@@ -69,14 +69,15 @@ def create_app():
         )
         app.vector_store_available = True
         logging.info("Using Ollama-based vector store (fast)")
-    except ImportError:
+    except (ImportError, ValueError, Exception) as e:
+        logging.warning(f"Ollama vector store failed: {e}")
         try:
             # Fall back to sentence-transformers version
             from src.services.vector_store import VectorStore
             app.vector_store = VectorStore(config.CHROMA_PERSIST_DIRECTORY)
             app.vector_store_available = True
             logging.info("Using sentence-transformers vector store (slower)")
-        except ImportError as e:
+        except (ImportError, Exception) as e:
             logging.warning(f"Vector store not available: {e}")
             app.vector_store = None
             app.vector_store_available = False

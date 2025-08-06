@@ -17,10 +17,10 @@ class OllamaEmbeddingFunction:
         self.base_url = base_url
         self.model = model
     
-    def __call__(self, texts: List[str]) -> List[List[float]]:
+    def __call__(self, input: List[str]) -> List[List[float]]:
         """Generate embeddings using Ollama."""
         embeddings = []
-        for text in texts:
+        for text in input:
             try:
                 response = requests.post(
                     f"{self.base_url}/api/embeddings",

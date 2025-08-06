@@ -40,3 +40,5 @@ chroma_db/
 *.sqlite3
 data
 htmlcov
+
+docker_logs
