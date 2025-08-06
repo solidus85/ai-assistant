@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Application entry point."""
 import config
-from app import create_app
+from src import create_app
 import logging
 import sys
 

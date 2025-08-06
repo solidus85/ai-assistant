@@ -2,3 +2,4 @@
 - Keep programming file line count below 300-400 lines.  Split into multiple files when necessary.
 - Avoid creating md files, simply communicate to me and I will tell you if I want your comments serialized.
 - All configurable settings or variables should be saved in config.py.
+- When using python, always use the .venv environment.

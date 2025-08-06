@@ -1,6 +1,6 @@
 """Conversation management API endpoints."""
 from flask import Blueprint, request, jsonify
-from app.utils.extensions import get_conversation_service
+from src.utils.extensions import get_conversation_service
 import logging
 
 bp = Blueprint('conversation', __name__, url_prefix='/api')

@@ -3,8 +3,8 @@ from flask import Blueprint, request, Response, stream_with_context, current_app
 import json
 import time
 import logging
-from app.utils.extensions import get_ollama_service
-from app.utils.token_counter import TokenCounter
+from src.utils.extensions import get_ollama_service
+from src.utils.token_counter import TokenCounter
 
 bp = Blueprint('summarize', __name__, url_prefix='/api')
 logger = logging.getLogger(__name__)

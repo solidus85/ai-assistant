@@ -1,6 +1,6 @@
 """Health check API endpoints."""
 from flask import Blueprint, jsonify, current_app
-from app.utils.extensions import get_ollama_service
+from src.utils.extensions import get_ollama_service
 
 bp = Blueprint('health', __name__, url_prefix='/api')
 

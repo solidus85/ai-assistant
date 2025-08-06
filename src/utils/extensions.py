@@ -1,6 +1,6 @@
 """Application extensions and service instances."""
 from flask import current_app
-from app.services import OllamaService, ConversationService
+from src.services import OllamaService, ConversationService
 
 # Service instances
 _ollama_service = None
