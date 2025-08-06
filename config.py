@@ -63,11 +63,21 @@ LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
 LOG_FILE = os.getenv('LOG_FILE', None)
 
 # Database settings
-SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///work_assistant.db')
+# Support both absolute and relative paths for SQLite
+DATABASE_PATH = os.getenv('DATABASE_PATH', './data/work_assistant.db')
+if not DATABASE_PATH.startswith('sqlite:///'):
+    # Convert path to SQLite URI format
+    DATABASE_PATH = os.path.abspath(DATABASE_PATH)
+    SQLALCHEMY_DATABASE_URI = f'sqlite:///{DATABASE_PATH}'
+else:
+    SQLALCHEMY_DATABASE_URI = DATABASE_PATH
+
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Vector database settings
-CHROMA_PERSIST_DIRECTORY = os.getenv('CHROMA_PERSIST_DIRECTORY', './chroma_db')
+# Support both absolute and relative paths
+CHROMA_PERSIST_DIRECTORY = os.getenv('CHROMA_PERSIST_DIRECTORY', './data/chroma_db')
+CHROMA_PERSIST_DIRECTORY = os.path.abspath(CHROMA_PERSIST_DIRECTORY)
 
 # Keyword extraction model (smaller model for parsing)
 EXTRACTION_MODEL = os.getenv('EXTRACTION_MODEL', 'phi3')

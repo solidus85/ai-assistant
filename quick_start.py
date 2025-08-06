@@ -67,7 +67,13 @@ MODEL_NAME=gemma3:12b-it-qat
 EXTRACTION_MODEL=phi3
 
 # Database settings
-DATABASE_URL=sqlite:///work_assistant.db
+# You can use absolute or relative paths
+DATABASE_PATH=./data/work_assistant.db
+CHROMA_PERSIST_DIRECTORY=./data/chroma_db
+
+# Examples of other path configurations:
+# DATABASE_PATH=/home/user/mydata/assistant.db
+# CHROMA_PERSIST_DIRECTORY=/var/lib/ai-assistant/vectors
 
 # Optional: Change these for production
 SECRET_KEY=dev-secret-key-change-in-production

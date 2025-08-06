@@ -10,9 +10,14 @@ services:
       - DEBUG=False
       # Use host.docker.internal to connect to Ollama running on Windows host
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      # Database paths inside container
+      - DATABASE_PATH=/app/data/work_assistant.db
+      - CHROMA_PERSIST_DIRECTORY=/app/data/chroma_db
     env_file:
       - .env
     volumes:
+      # Mount data directory for persistent storage
+      - ./data:/app/data
       # Mount secret key directory
       - ./.secret_key:/app/.secret_key
       # For development: mount source code for hot-reload (optional)

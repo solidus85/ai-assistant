@@ -29,3 +29,12 @@ ollama_models/
 .secret_key
 .venv_win
 jenkins_console.txt
+
+# Data directories (configurable paths)
+data/
+work_assistant.db
+chroma_db/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3

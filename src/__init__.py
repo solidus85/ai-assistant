@@ -5,6 +5,26 @@ import logging
 import os
 
 
+def ensure_data_directories(app):
+    """Ensure all required data directories exist."""
+    # Extract directory paths from configuration
+    
+    # SQLite database directory
+    db_uri = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+    if db_uri.startswith('sqlite:///'):
+        db_path = db_uri.replace('sqlite:///', '')
+        db_dir = os.path.dirname(db_path)
+        if db_dir and not os.path.exists(db_dir):
+            os.makedirs(db_dir, exist_ok=True)
+            logging.info(f"Created database directory: {db_dir}")
+    
+    # ChromaDB directory
+    chroma_dir = app.config.get('CHROMA_PERSIST_DIRECTORY')
+    if chroma_dir and not os.path.exists(chroma_dir):
+        os.makedirs(chroma_dir, exist_ok=True)
+        logging.info(f"Created ChromaDB directory: {chroma_dir}")
+
+
 def create_app():
     """Application factory pattern."""
     app = Flask(__name__, 
@@ -16,6 +36,9 @@ def create_app():
     
     # Configure logging
     logging.basicConfig(level=getattr(logging, config.LOG_LEVEL))
+    
+    # Ensure data directories exist
+    ensure_data_directories(app)
     
     # Initialize database
     from src.models.database import db
