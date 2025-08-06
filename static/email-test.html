@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Processing Test</title>
+    <title>Email Processing Test - Plain Text</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -40,8 +40,11 @@
             box-sizing: border-box;
         }
         textarea {
-            min-height: 150px;
+            min-height: 200px;
             resize: vertical;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            line-height: 1.5;
         }
         button {
             background: #007bff;
@@ -118,7 +121,13 @@
 </head>
 <body>
     <div class="container">
-        <h1>📧 Email Processing API Test</h1>
+        <h1>📧 Email Processing API Test (Plain Text)</h1>
+        
+        <div style="background: #e7f3ff; padding: 15px; border-radius: 4px; margin-bottom: 20px; font-size: 14px;">
+            <strong>ℹ️ Plain Text Format:</strong> This tool processes plain text emails only. 
+            You can paste email content directly, load a .txt file with email headers, or use the sample button.
+            The API will extract project information, people, deliverables, and action items from the text.
+        </div>
         
         <form id="emailForm">
             <div class="form-group">
@@ -150,15 +159,16 @@
             </div>
             
             <div class="form-group">
-                <label for="body">Body:</label>
+                <label for="body">Body: (Plain Text)</label>
                 <textarea id="body" name="body" 
-                          placeholder="Email body content...">Hi Team,
+                          placeholder="Enter plain text email content..."
+                          spellcheck="false">Hi Team,
 
 I wanted to provide an update on our Q4 deliverables for the Analytics Dashboard project.
 
 We've completed the following:
 - User authentication module
-- Data visualization components
+- Data visualization components  
 - API integration with the backend
 
 Still pending:
@@ -183,6 +193,10 @@ John</textarea>
             <button type="button" class="secondary" onclick="loadSampleEmail()">
                 Load Sample
             </button>
+            <button type="button" class="secondary" onclick="document.getElementById('fileInput').click()">
+                Load .txt File
+            </button>
+            <input type="file" id="fileInput" accept=".txt,.text,text/plain" style="display: none;" onchange="loadTextFile(event)">
         </form>
         
         <div id="result"></div>
@@ -329,9 +343,9 @@ This is a critical update regarding the Mobile App Redesign project.
 We're approaching the launch deadline (December 15th) and need immediate action on the following:
 
 COMPLETED:
-✓ UI/UX redesign implementation
-✓ Backend API updates
-✓ Push notification system
+* UI/UX redesign implementation
+* Backend API updates
+* Push notification system
 
 ACTION REQUIRED:
 1. Complete final QA testing by EOD tomorrow (Alice, Bob)
@@ -358,6 +372,59 @@ Sarah
 --
 Sarah Johnson
 Product Manager | Innovate.io`;
+        }
+        
+        function loadTextFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                
+                // Try to parse email headers from the text file
+                const lines = content.split('\n');
+                let from = '';
+                let to = '';
+                let cc = '';
+                let subject = '';
+                let bodyStartIndex = 0;
+                
+                // Look for standard email headers
+                for (let i = 0; i < Math.min(lines.length, 20); i++) {
+                    const line = lines[i];
+                    if (line.startsWith('From: ')) {
+                        from = line.substring(6).trim();
+                    } else if (line.startsWith('To: ')) {
+                        to = line.substring(4).trim();
+                    } else if (line.startsWith('Cc: ') || line.startsWith('CC: ')) {
+                        cc = line.substring(4).trim();
+                    } else if (line.startsWith('Subject: ')) {
+                        subject = line.substring(9).trim();
+                    } else if (line.trim() === '' && i > 0) {
+                        // Empty line typically separates headers from body
+                        bodyStartIndex = i + 1;
+                        break;
+                    }
+                }
+                
+                // If we found headers, use them
+                if (from) document.getElementById('from').value = from;
+                if (to) document.getElementById('to').value = to;
+                if (cc) document.getElementById('cc').value = cc;
+                if (subject) document.getElementById('subject').value = subject;
+                
+                // Set the body (either from after headers or entire content)
+                const body = bodyStartIndex > 0 
+                    ? lines.slice(bodyStartIndex).join('\n')
+                    : content;
+                document.getElementById('body').value = body.trim();
+            };
+            
+            reader.readAsText(file);
+            
+            // Reset the file input so the same file can be selected again
+            event.target.value = '';
         }
     </script>
 </body>
