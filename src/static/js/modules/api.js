@@ -1,5 +1,27 @@
 // API communication module
 
+// Generic API call function for all endpoints
+export async function apiCall(url, method = 'GET', data = null) {
+    const options = {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    };
+    
+    if (data && method !== 'GET') {
+        options.body = JSON.stringify(data);
+    }
+    
+    const response = await fetch(url, options);
+    
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+}
+
 export async function checkHealth() {
     const response = await fetch('/api/health');
     return await response.json();
