@@ -8,18 +8,24 @@ echo "📦 Downloading Python wheels for offline installation..."
 WHEELS_DIR="./wheels"
 mkdir -p "$WHEELS_DIR"
 
-# Activate virtual environment if it exists
-if [ -d ".venv" ]; then
-    source .venv/bin/activate
-fi
+# Clear old wheels to avoid version conflicts
+echo "🧹 Clearing old wheels..."
+rm -f "$WHEELS_DIR"/*.whl
 
-# Download all wheels from requirements.txt
+# Download wheels - let pip automatically handle platform compatibility
+# This will download wheels that work on Linux x86_64
 echo "⬇️ Downloading wheels from requirements.txt..."
-pip download --dest "$WHEELS_DIR" -r requirements.txt
+pip download \
+    --dest "$WHEELS_DIR" \
+    --platform linux_x86_64 \
+    -r requirements.txt
 
 # Also download numpy<2.0 specifically
 echo "⬇️ Downloading numpy<2.0..."
-pip download --dest "$WHEELS_DIR" "numpy<2.0"
+pip download \
+    --dest "$WHEELS_DIR" \
+    --platform linux_x86_64 \
+    "numpy<2.0"
 
 # Download any additional commonly used packages
 echo "⬇️ Downloading additional common packages..."

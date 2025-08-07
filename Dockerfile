@@ -7,9 +7,7 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    ANONYMIZED_TELEMETRY=False \
-    # Force pip to fail if package not found locally (no internet)
-    PIP_NO_INDEX=1
+    ANONYMIZED_TELEMETRY=False
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -21,42 +19,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Create non-root user
 RUN useradd -m -u 1000 appuser
 
-# Copy wheels directory - THIS IS YOUR PACKAGE CACHE
-COPY --chown=appuser:appuser wheels /tmp/wheels
-
-# List available wheels (for debugging if needed)
-RUN cd /tmp/wheels && \
-    ls -1 *.whl > index.txt && \
-    echo "Found $(wc -l < index.txt) wheel files"
-
-# Copy requirements file
+# Copy only requirements file first for better caching
 COPY --chown=appuser:appuser requirements.txt .
 
 # Switch to non-root user
 USER appuser
 
-# Install ONLY from local wheels (completely offline)
-# --no-index: Don't use PyPI at all
-# --find-links: Use /tmp/wheels as package source
-RUN pip install --user \
-    --no-index \
-    --find-links /tmp/wheels \
-    --no-cache-dir \
-    "numpy<2.0" && \
-    pip install --user \
-    --no-index \
-    --find-links /tmp/wheels \
-    --no-cache-dir \
-    -r requirements.txt
-
-# Clean up wheels after installation to reduce image size
-USER root
-RUN rm -rf /tmp/wheels
+# Install Python dependencies
+# This layer will be cached as long as requirements.txt doesn't change
+RUN pip install --user --no-cache-dir "numpy<2.0" && \
+    pip install --user --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY --chown=appuser:appuser . .
 
 # Copy and set permissions for entrypoint script
+USER root
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh && \
     chown -R appuser:appuser /app
