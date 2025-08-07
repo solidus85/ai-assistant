@@ -2,7 +2,7 @@ services:
   web:
     build: 
       context: .
-      dockerfile: Dockerfile  # Uses only local wheels
+      dockerfile: Dockerfile  
     image: ai-assistant
     container_name: ai-assistant
     ports:

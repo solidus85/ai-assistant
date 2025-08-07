@@ -3,3 +3,5 @@
 - Avoid creating md files, simply communicate to me and I will tell you if I want your comments serialized.
 - All configurable settings or variables should be saved in config.py.
 - When using python, always use the .venv environment.
+- Do not change the requirements.txt file without explicit permission.
+- Do not change versions in the dockerfile without explicit permission.
