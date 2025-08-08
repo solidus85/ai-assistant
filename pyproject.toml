@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [{ include = "src" }]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.13"
+python = ">=3.13,<4.0"
 # ↓ Add your runtime deps here (I'll convert from your requirements.txt once you paste it)
 # fastapi = "^0.115"
 # uvicorn = {version="^0.30", extras=["standard"]}
